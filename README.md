@@ -74,7 +74,7 @@ flowchart TD
 1. **Clonar o Repositório e Navegar para a Pasta:**
    ```bash
    git clone <URL_DO_REPOSITORIO>
-   cd books-tool
+   cd docs-wiki
    ```
 
 2. **Configurar as Variáveis de Ambiente:**
