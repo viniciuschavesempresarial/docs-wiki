@@ -1,0 +1,244 @@
+version: '3.8'
+
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "15m"
+    max-file: "3"
+    tag: "{{.Name}}"
+
+networks:
+  backend_net:
+    driver: bridge
+
+volumes:
+  pgdata:
+  redisdata:
+  rabbitmqdata:
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: homelab_postgres
+    logging: *default-logging
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init-schemas.sql:/docker-entrypoint-initdb.d/init-schemas.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend_net
+
+  redis:
+    image: redis:7-alpine
+    container_name: homelab_redis
+    logging: *default-logging
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD} --save 60 1 --loglevel warning
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend_net
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: homelab_rabbitmq
+    logging: *default-logging
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    volumes:
+      - rabbitmqdata:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "${RABBITMQ_PORT}:5672"
+      - "${RABBITMQ_MGMT_PORT}:15672"
+    networks:
+      - backend_net
+
+  iam-service:
+    build:
+      context: .
+      dockerfile: services/iam/Dockerfile
+    container_name: service_iam
+    logging: *default-logging
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB}
+      IAM_DB_USER: ${IAM_DB_USER}
+      IAM_DB_PASSWORD: ${IAM_DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      COOKIE_SECRET: ${COOKIE_SECRET}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - backend_net
+
+  content-service:
+    build:
+      context: .
+      dockerfile: services/content/Dockerfile
+    container_name: service_content
+    logging: *default-logging
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3002
+      DATABASE_URL: "postgres://${CONTENT_DB_USER}:${CONTENT_DB_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=conteudo"
+      RABBITMQ_URL: "amqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@rabbitmq:5672"
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - backend_net
+
+  nlp-service:
+    build:
+      context: .
+      dockerfile: services/nlp/Dockerfile
+    container_name: service_nlp
+    logging: *default-logging
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: "postgres://${SEARCH_DB_USER}:${SEARCH_DB_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=busca"
+      REDIS_URL: "redis://:${REDIS_PASSWORD}@redis:6379"
+      RABBITMQ_URL: "amqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@rabbitmq:5672"
+      SENTENCE_TRANSFORMER_MODEL: ${SENTENCE_TRANSFORMER_MODEL}
+      EMBEDDING_DIMENSIONS: ${EMBEDDING_DIMENSIONS}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - backend_net
+
+  search-service:
+    build:
+      context: .
+      dockerfile: services/search/Dockerfile
+    container_name: service_search
+    logging: *default-logging
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3004
+      DATABASE_URL: "postgres://${SEARCH_DB_USER}:${SEARCH_DB_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=busca"
+      REDIS_URL: "redis://:${REDIS_PASSWORD}@redis:6379"
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GEMINI_MODEL: ${GEMINI_MODEL}
+      JWT_SECRET: ${JWT_SECRET}
+      EMBEDDING_DIMENSIONS: ${EMBEDDING_DIMENSIONS}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - backend_net
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: frontend_app
+    logging: *default-logging
+    restart: unless-stopped
+    networks:
+      - backend_net
+
+  telegraf:
+    image: telegraf:1.30-alpine
+    container_name: homelab_telegraf
+    user: "root"
+    logging: *default-logging
+    restart: unless-stopped
+    environment:
+      MONITORING_PROJECT: ${MONITORING_PROJECT}
+      MONITORING_ENVIRONMENT: ${MONITORING_ENVIRONMENT}
+      MONITORING_NODE_ROLE: ${MONITORING_NODE_ROLE}
+      MONITORING_HOST: ${MONITORING_HOST}
+      VICTORIAMETRICS_HOST: ${VICTORIAMETRICS_HOST}
+      VICTORIAMETRICS_PORT: ${VICTORIAMETRICS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    volumes:
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - redis
+      - rabbitmq
+    networks:
+      - backend_net
+
+  promtail:
+    image: grafana/promtail:2.9.0
+    container_name: homelab_promtail
+    logging: *default-logging
+    restart: unless-stopped
+    environment:
+      MONITORING_PROJECT: ${MONITORING_PROJECT}
+      MONITORING_ENVIRONMENT: ${MONITORING_ENVIRONMENT}
+      MONITORING_NODE_ROLE: ${MONITORING_NODE_ROLE}
+      MONITORING_HOST: ${MONITORING_HOST}
+      LOKI_HOST: ${LOKI_HOST}
+      LOKI_PORT: ${LOKI_PORT}
+    command: -config.file=/etc/promtail/config.yml -config.expand-env=true
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./promtail-config.yml:/etc/promtail/config.yml:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - backend_net
+
+  nginx:
+    image: nginx:alpine
+    container_name: homelab_nginx
+    logging: *default-logging
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT}:80"
+      - "${HTTPS_PORT}:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - iam-service
+      - content-service
+      - search-service
+      - frontend
+    networks:
+      - backend_net

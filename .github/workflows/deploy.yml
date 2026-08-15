@@ -1,0 +1,108 @@
+name: CI/CD Pipeline - Docs-Wiki Homelab
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: 🏗️ 1. Build e Validação de Tipagem
+    runs-on: self-hosted
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js v20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Instalar Dependências do Monorepo
+        run: npm ci
+
+      - name: Compilar TypeScript em Todos os Pacotes
+        run: npm run build
+
+      - name: Validar Sintaxe do Docker Compose
+        run: docker compose config
+
+  test:
+    name: 🧪 2. Suíte de Testes Automatizados (Jest)
+    needs: build
+    runs-on: self-hosted
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js v20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Instalar Dependências
+        run: npm ci
+
+      - name: Executar Testes no Backend (Jest + Supertest)
+        run: npm run test:backend
+
+      - name: Executar Testes no Frontend (Jest + RTL)
+        run: npm run test:frontend
+
+  tag-lts:
+    name: 🏷️ 3. Gerar Tag LTS
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: self-hosted
+    outputs:
+      new_tag: ${{ steps.create_tag.outputs.new_tag }}
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Calcular e Publicar Tag LTS
+        id: create_tag
+        run: |
+          DATE=$(date +'%Y%m%d')
+          TAG_NAME="v1.0.${{ github.run_number }}-lts-${DATE}"
+          
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git tag -a "$TAG_NAME" -m "Release LTS automática gerada no build #${{ github.run_number }}"
+          git push origin "$TAG_NAME"
+          
+          echo "new_tag=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "Tag LTS $TAG_NAME criada com sucesso!"
+
+  deploy:
+    name: 🚀 4. Deploy no Homelab Proxmox
+    needs: tag-lts
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: self-hosted
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+
+      - name: Validar Existência do .env no Host
+        run: |
+          if [ ! -f .env ]; then
+            echo "AVISO: Arquivo .env não encontrado. Copiando de .env.example para inicialização..."
+            cp .env.example .env
+          fi
+
+      - name: Subir Containers Atualizados (Build Paralelo)
+        run: |
+          docker compose build --parallel
+          docker compose up -d --remove-orphans
+
+      - name: Limpeza de Imagens Órfãs
+        run: docker image prune -f

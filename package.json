@@ -1,0 +1,25 @@
+{
+  "name": "books-tool-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Plataforma Docs-Wiki de Conteúdo, NLP e Busca Híbrida",
+  "workspaces": [
+    "packages/*",
+    "services/*",
+    "frontend"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:iam": "npm run --workspace=@docswiki/iam-service test",
+    "test:content": "npm run --workspace=content-service test",
+    "test:nlp": "npm run --workspace=nlp-service test",
+    "test:search": "npm run --workspace=search-service test",
+    "test:backend": "npm run test:iam && npm run test:content && npm run test:nlp && npm run test:search",
+    "test:frontend": "npm run --workspace=frontend test",
+    "lint": "npm run lint --workspaces --if-present"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
+}

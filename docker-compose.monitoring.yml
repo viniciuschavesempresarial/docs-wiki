@@ -1,0 +1,86 @@
+version: '3.8'
+
+# =============================================================================
+# DOCKER COMPOSE - NÓ DE OBSERVABILIDADE & MONITORAMENTO (ISOLADO)
+# =============================================================================
+# Hospeda os backends pesados (VictoriaMetrics, Loki, Grafana).
+# Executado em máquina/instância separada do nó sob teste (Staging)
+# para eliminar o efeito observador durante testes de carga contínuos.
+
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "15m"
+    max-file: "3"
+
+networks:
+  monitoring_net:
+    driver: bridge
+
+volumes:
+  vmdata:
+    name: books_tool_vmdata
+  lokidata:
+    name: books_tool_lokidata
+  grafanadata:
+    name: books_tool_grafanadata
+
+services:
+  # ===========================================================================
+  # 1. TIME SERIES DATABASE (MÉTRICAS) - VICTORIAMETRICS SINGLE-NODE
+  # ===========================================================================
+  victoriametrics:
+    image: victoriametrics/victoria-metrics:v1.99.0
+    container_name: monitoring_victoriametrics
+    logging: *default-logging
+    restart: unless-stopped
+    ports:
+      - "${VICTORIAMETRICS_PORT}:8428"
+    volumes:
+      - vmdata:/victoria-metrics-data
+    command:
+      - "-storageDataPath=/victoria-metrics-data"
+      - "-retentionPeriod=14d"
+      - "-httpListenAddr=:8428"
+    networks:
+      - monitoring_net
+
+  # ===========================================================================
+  # 2. LOG AGGREGATION ENGINE - GRAFANA LOKI
+  # ===========================================================================
+  loki:
+    image: grafana/loki:2.9.0
+    container_name: monitoring_loki
+    logging: *default-logging
+    restart: unless-stopped
+    ports:
+      - "${LOKI_PORT}:3100"
+    volumes:
+      - lokidata:/loki
+    networks:
+      - monitoring_net
+
+  # ===========================================================================
+  # 3. VISUALIZAÇÃO & DASHBOARDS - GRAFANA COM AUTO-PROVISIONING
+  # ===========================================================================
+  grafana:
+    image: grafana/grafana:10.4.0
+    container_name: monitoring_grafana
+    logging: *default-logging
+    restart: unless-stopped
+    ports:
+      - "${GRAFANA_PORT}:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=
+    volumes:
+      - grafanadata:/var/lib/grafana
+      - ./monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./monitoring/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+    depends_on:
+      - victoriametrics
+      - loki
+    networks:
+      - monitoring_net
