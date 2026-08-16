@@ -22,7 +22,7 @@ COPY services/search/package.json ./services/search/
 COPY frontend/package.json ./frontend/
 
 # Instalar estritamente dependências de produção
-RUN npm ci --omit=dev && npm cache clean --force
+RUN npm ci --omit=dev --no-audit --loglevel=error
 
 # Copiar artefatos pré-compilados pelo pipeline
 COPY --chown=nodejs:nodejs packages/shared/dist ./packages/shared/dist

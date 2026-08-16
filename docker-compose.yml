@@ -32,6 +32,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 15s
     networks:
       - backend_net
 
@@ -48,6 +49,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
     networks:
       - backend_net
 
@@ -62,10 +64,11 @@ services:
     volumes:
       - rabbitmqdata:/var/lib/rabbitmq
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 10s
-      timeout: 5s
+      timeout: 10s
       retries: 5
+      start_period: 30s
     ports:
       - "${RABBITMQ_PORT}:5672"
       - "${RABBITMQ_MGMT_PORT}:15672"
