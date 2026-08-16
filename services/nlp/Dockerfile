@@ -5,9 +5,6 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Instalar ferramentas de build para pacotes nativos (se aplicável)
-RUN apk update && apk add --no-cache python3 make g++
-
 # Copiar arquivos de configuração do monorepo
 COPY package.json package-lock.json tsconfig.base.json ./
 COPY packages/shared/package.json ./packages/shared/
@@ -36,9 +33,6 @@ ENV NODE_ENV=production
 # Criação de usuário e grupo não-root para segurança
 RUN addgroup -g 10001 -S nodejs && \
     adduser -u 10001 -S nodejs -G nodejs
-
-# Instalar bibliotecas de suporte a runtime nativo se necessário
-RUN apk add --no-cache libstdc++
 
 # Copiar manifests e instalar apenas dependências de produção
 COPY package.json package-lock.json ./

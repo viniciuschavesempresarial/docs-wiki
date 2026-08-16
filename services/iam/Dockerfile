@@ -5,9 +5,6 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Instalar ferramentas de build para pacotes nativos (bcrypt)
-RUN apk update && apk add --no-cache python3 make g++
-
 # Copiar arquivos de configuração do monorepo
 COPY package.json package-lock.json tsconfig.base.json ./
 COPY packages/shared/package.json ./packages/shared/
