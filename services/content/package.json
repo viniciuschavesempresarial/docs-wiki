@@ -4,7 +4,7 @@
   "description": "Microsserviço de Gestão de Conteúdo e Controle de Versão Git-Like do Docs-Wiki",
   "main": "dist/server.js",
   "scripts": {
-    "build": "npx tsc",
+    "build": "tsc",
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
     "test": "jest --runInBand --forceExit --detectOpenHandles",

@@ -5,6 +5,9 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Instalar TypeScript globalmente para garantir tsc no sistema
+RUN npm install -g typescript
+
 # Copiar arquivos de configuração do monorepo e manifests de workspaces
 COPY package.json package-lock.json tsconfig.base.json ./
 COPY packages/shared/package.json ./packages/shared/
@@ -14,18 +17,15 @@ COPY services/nlp/package.json ./services/nlp/
 COPY services/search/package.json ./services/search/
 COPY frontend/package.json ./frontend/
 
-ENV NODE_ENV=development
-ENV PATH="/app/node_modules/.bin:${PATH}"
-
 # Instalar dependências completas
-RUN npm ci --include=dev
+RUN npm ci
 
 # Copiar código-fonte de contratos compartilhados e do frontend
 COPY packages/shared ./packages/shared
 COPY frontend ./frontend
 
-# Compilar contratos compartilhados e gerar o bundle de produção do Vite
-RUN npm run build --workspace=@shared/contracts
+# Compilar contratos compartilhados com tsc e gerar o bundle de produção do Vite
+RUN tsc -p packages/shared/tsconfig.json
 RUN npm run build --workspace=frontend
 
 # ==========================================

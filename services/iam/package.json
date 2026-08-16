@@ -4,7 +4,7 @@
   "description": "Serviço de IAM, Autenticação e RBAC para Plataforma Docs-Wiki",
   "main": "dist/server.js",
   "scripts": {
-    "build": "npx tsc",
+    "build": "tsc",
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
     "test": "jest --runInBand --detectOpenHandles --forceExit",
