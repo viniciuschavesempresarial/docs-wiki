@@ -12,10 +12,23 @@ permissions:
 jobs:
   build:
     name: 🏗️ 1. Build e Validação de Tipagem
+    environment: staging
     runs-on: self-hosted
     steps:
       - name: Checkout do Repositório
         uses: actions/checkout@v4
+
+      - name: 🔐 Gerar arquivo .env para build e validação
+        env:
+          ENV_STAGING: ${{ secrets.ENV_STAGING }}
+        run: |
+          if [ -n "$ENV_STAGING" ]; then
+            echo "$ENV_STAGING" > .env
+            echo "✅ Arquivo .env gerado a partir do Secret ENV_STAGING."
+          elif [ -f .env.example ]; then
+            cp .env.example .env
+            echo "ℹ️ Arquivo .env inicializado a partir de .env.example."
+          fi
 
       - name: Setup Node.js v20
         uses: actions/setup-node@v4
@@ -24,16 +37,10 @@ jobs:
           cache: 'npm'
 
       - name: Instalar Dependências do Monorepo
-        run: npm ci
+        run: npm ci --loglevel=error --no-audit
 
       - name: Compilar TypeScript em Todos os Pacotes
         run: npm run build
-
-      - name: 🔐 Preparar .env para validação do Compose
-        run: |
-          if [ ! -f .env ] && [ -f .env.example ]; then
-            cp .env.example .env
-          fi
 
       - name: Validar Sintaxe do Docker Compose
         run: docker compose config
@@ -41,10 +48,23 @@ jobs:
   test:
     name: 🧪 2. Suíte de Testes Automatizados (Jest)
     needs: build
+    environment: staging
     runs-on: self-hosted
     steps:
       - name: Checkout do Repositório
         uses: actions/checkout@v4
+
+      - name: 🔐 Gerar arquivo .env para execução dos testes
+        env:
+          ENV_STAGING: ${{ secrets.ENV_STAGING }}
+        run: |
+          if [ -n "$ENV_STAGING" ]; then
+            echo "$ENV_STAGING" > .env
+            echo "✅ Arquivo .env gerado a partir do Secret ENV_STAGING."
+          elif [ -f .env.example ]; then
+            cp .env.example .env
+            echo "ℹ️ Arquivo .env inicializado a partir de .env.example."
+          fi
 
       - name: Setup Node.js v20
         uses: actions/setup-node@v4
