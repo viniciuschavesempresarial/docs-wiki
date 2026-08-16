@@ -5,10 +5,16 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copiar arquivos de configuração do monorepo
+# Copiar arquivos de configuração do monorepo e manifests de workspaces
 COPY package.json package-lock.json tsconfig.base.json ./
 COPY packages/shared/package.json ./packages/shared/
+COPY services/iam/package.json ./services/iam/
 COPY services/content/package.json ./services/content/
+COPY services/nlp/package.json ./services/nlp/
+COPY services/search/package.json ./services/search/
+COPY frontend/package.json ./frontend/
+
+ENV PATH="/app/node_modules/.bin:${PATH}"
 
 # Instalar todas as dependências do monorepo
 RUN npm ci
@@ -38,7 +44,11 @@ RUN addgroup -g 10001 -S nodejs && \
 # Copiar manifests e instalar apenas dependências de produção
 COPY package.json package-lock.json ./
 COPY packages/shared/package.json ./packages/shared/
+COPY services/iam/package.json ./services/iam/
 COPY services/content/package.json ./services/content/
+COPY services/nlp/package.json ./services/nlp/
+COPY services/search/package.json ./services/search/
+COPY frontend/package.json ./frontend/
 
 RUN npm ci --omit=dev && npm cache clean --force
 

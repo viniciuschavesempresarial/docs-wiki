@@ -84,9 +84,34 @@ jobs:
       - name: Executar Testes no Frontend (Jest + RTL)
         run: npm run test:frontend
 
-  tag-lts:
-    name: 🏷️ 3. Gerar Tag LTS
+  deploy:
+    name: 🚀 3. Deploy no Homelab Proxmox
     needs: test
+    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
+    environment: staging
+    runs-on: self-hosted
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+
+      - name: 🔐 Gerar arquivo .env a partir do Secret do Environment
+        env:
+          ENV_STAGING: ${{ secrets.ENV_STAGING }}
+        run: |
+          echo "$ENV_STAGING" > .env
+          echo "✅ Arquivo .env gerado com sucesso a partir do Environment Staging."
+
+      - name: Subir Containers Atualizados (Build Paralelo)
+        run: |
+          docker compose build --parallel
+          docker compose up -d --remove-orphans
+
+      - name: Limpeza de Imagens Órfãs
+        run: docker image prune -f
+
+  tag-lts:
+    name: 🏷️ 4. Gerar Tag LTS
+    needs: deploy
     if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
     runs-on: self-hosted
     outputs:
@@ -111,28 +136,3 @@ jobs:
           
           echo "new_tag=$TAG_NAME" >> $GITHUB_OUTPUT
           echo "Tag LTS $TAG_NAME criada com sucesso!"
-
-  deploy:
-    name: 🚀 4. Deploy no Homelab Proxmox
-    needs: tag-lts
-    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
-    environment: staging
-    runs-on: self-hosted
-    steps:
-      - name: Checkout do Repositório
-        uses: actions/checkout@v4
-
-      - name: 🔐 Gerar arquivo .env a partir do Secret do Environment
-        env:
-          ENV_STAGING: ${{ secrets.ENV_STAGING }}
-        run: |
-          echo "$ENV_STAGING" > .env
-          echo "✅ Arquivo .env gerado com sucesso a partir do Environment Staging."
-
-      - name: Subir Containers Atualizados (Build Paralelo)
-        run: |
-          docker compose build --parallel
-          docker compose up -d --remove-orphans
-
-      - name: Limpeza de Imagens Órfãs
-        run: docker image prune -f
