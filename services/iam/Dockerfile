@@ -1,37 +1,7 @@
 # ==========================================
-# STAGE 1: BUILDER
+# RUNNER: IAM SERVICE (PRODUÇÃO)
 # ==========================================
-FROM node:20-alpine AS builder
-
-WORKDIR /app
-
-# Instalar TypeScript globalmente para garantir tsc no sistema
-RUN npm install -g typescript
-
-# Copiar arquivos de configuração do monorepo e manifests de workspaces
-COPY package.json package-lock.json tsconfig.base.json ./
-COPY packages/shared/package.json ./packages/shared/
-COPY services/iam/package.json ./services/iam/
-COPY services/content/package.json ./services/content/
-COPY services/nlp/package.json ./services/nlp/
-COPY services/search/package.json ./services/search/
-COPY frontend/package.json ./frontend/
-
-# Instalar dependências completas
-RUN npm ci
-
-# Copiar código-fonte de contratos compartilhados e do serviço IAM
-COPY packages/shared ./packages/shared
-COPY services/iam ./services/iam
-
-# Compilar TypeScript diretamente com tsc
-RUN tsc -p packages/shared/tsconfig.json
-RUN tsc -p services/iam/tsconfig.json
-
-# ==========================================
-# STAGE 2: RUNNER (PRODUÇÃO)
-# ==========================================
-FROM node:20-alpine AS runner
+FROM node:20-alpine
 
 WORKDIR /app
 
@@ -42,7 +12,7 @@ ENV PORT=3001
 RUN addgroup -g 10001 -S nodejs && \
     adduser -u 10001 -S nodejs -G nodejs
 
-# Copiar manifests e instalar apenas dependências de produção
+# Copiar manifests do monorepo para resolução exata do package-lock
 COPY package.json package-lock.json ./
 COPY packages/shared/package.json ./packages/shared/
 COPY services/iam/package.json ./services/iam/
@@ -51,11 +21,12 @@ COPY services/nlp/package.json ./services/nlp/
 COPY services/search/package.json ./services/search/
 COPY frontend/package.json ./frontend/
 
+# Instalar estritamente dependências de produção
 RUN npm ci --omit=dev && npm cache clean --force
 
-# Copiar artefatos compilados
-COPY --from=builder --chown=nodejs:nodejs /app/packages/shared/dist ./packages/shared/dist
-COPY --from=builder --chown=nodejs:nodejs /app/services/iam/dist ./services/iam/dist
+# Copiar artefatos pré-compilados pelo pipeline
+COPY --chown=nodejs:nodejs packages/shared/dist ./packages/shared/dist
+COPY --chown=nodejs:nodejs services/iam/dist ./services/iam/dist
 
 USER nodejs
 

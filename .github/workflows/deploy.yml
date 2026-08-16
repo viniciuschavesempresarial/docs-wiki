@@ -101,6 +101,17 @@ jobs:
           echo "$ENV_STAGING" > .env
           echo "✅ Arquivo .env gerado com sucesso a partir do Environment Staging."
 
+      - name: Setup Node.js v20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Instalar Dependências e Compilar Monorepo
+        run: |
+          npm ci --loglevel=error --no-audit
+          npm run build
+
       - name: Subir Containers Atualizados (Build Paralelo)
         run: |
           docker compose build --parallel
