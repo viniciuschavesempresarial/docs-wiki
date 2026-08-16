@@ -2,9 +2,9 @@ name: CI/CD Pipeline - Docs-Wiki Homelab
 
 on:
   push:
-    branches: [ main ]
+    branches: [ staging ]
   pull_request:
-    branches: [ main ]
+    branches: [ staging ]
 
 permissions:
   contents: write
@@ -28,6 +28,12 @@ jobs:
 
       - name: Compilar TypeScript em Todos os Pacotes
         run: npm run build
+
+      - name: 🔐 Preparar .env para validação do Compose
+        run: |
+          if [ ! -f .env ] && [ -f .env.example ]; then
+            cp .env.example .env
+          fi
 
       - name: Validar Sintaxe do Docker Compose
         run: docker compose config
@@ -58,7 +64,7 @@ jobs:
   tag-lts:
     name: 🏷️ 3. Gerar Tag LTS
     needs: test
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
     runs-on: self-hosted
     outputs:
       new_tag: ${{ steps.create_tag.outputs.new_tag }}
@@ -74,8 +80,8 @@ jobs:
           DATE=$(date +'%Y%m%d')
           TAG_NAME="v1.0.${{ github.run_number }}-lts-${DATE}"
           
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "Vinicius Chaves"
+          git config user.email "viniciuschaves.empresarial@gmail.com"
           
           git tag -a "$TAG_NAME" -m "Release LTS automática gerada no build #${{ github.run_number }}"
           git push origin "$TAG_NAME"
@@ -86,18 +92,19 @@ jobs:
   deploy:
     name: 🚀 4. Deploy no Homelab Proxmox
     needs: tag-lts
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
+    environment: staging
     runs-on: self-hosted
     steps:
       - name: Checkout do Repositório
         uses: actions/checkout@v4
 
-      - name: Validar Existência do .env no Host
+      - name: 🔐 Gerar arquivo .env a partir do Secret do Environment
+        env:
+          ENV_STAGING: ${{ secrets.ENV_STAGING }}
         run: |
-          if [ ! -f .env ]; then
-            echo "AVISO: Arquivo .env não encontrado. Copiando de .env.example para inicialização..."
-            cp .env.example .env
-          fi
+          echo "$ENV_STAGING" > .env
+          echo "✅ Arquivo .env gerado com sucesso a partir do Environment Staging."
 
       - name: Subir Containers Atualizados (Build Paralelo)
         run: |
