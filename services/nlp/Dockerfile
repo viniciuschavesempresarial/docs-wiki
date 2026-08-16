@@ -5,8 +5,8 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Instalar ferramentas de build para pacotes nativos (necessário para bindings de ML/ONNX se aplicável)
-RUN apk add --no-cache python3 make g++
+# Instalar ferramentas de build para pacotes nativos (se aplicável)
+RUN apk update && apk add --no-cache python3 make g++
 
 # Copiar arquivos de configuração do monorepo
 COPY package.json package-lock.json tsconfig.base.json ./
