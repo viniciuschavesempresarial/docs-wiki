@@ -73,7 +73,10 @@ jobs:
           cache: 'npm'
 
       - name: Instalar Dependências
-        run: npm ci
+        run: npm ci --loglevel=error --no-audit
+
+      - name: Compilar Pacotes do Monorepo
+        run: npm run build
 
       - name: Executar Testes no Backend (Jest + Supertest)
         run: npm run test:backend
