@@ -14,10 +14,11 @@ COPY services/nlp/package.json ./services/nlp/
 COPY services/search/package.json ./services/search/
 COPY frontend/package.json ./frontend/
 
+ENV NODE_ENV=development
 ENV PATH="/app/node_modules/.bin:${PATH}"
 
 # Instalar todas as dependências do monorepo
-RUN npm ci
+RUN npm ci --include=dev
 
 # Copiar código-fonte de contratos compartilhados e do serviço IAM
 COPY packages/shared ./packages/shared
