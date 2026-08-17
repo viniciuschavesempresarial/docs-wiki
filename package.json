@@ -4,8 +4,11 @@
   "private": true,
   "description": "Plataforma Docs-Wiki de Conteúdo, NLP e Busca Híbrida",
   "workspaces": [
-    "packages/*",
-    "services/*",
+    "packages/shared",
+    "services/iam",
+    "services/content",
+    "services/nlp",
+    "services/search",
     "frontend"
   ],
   "scripts": {
