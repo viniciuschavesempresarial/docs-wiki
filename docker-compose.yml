@@ -79,6 +79,7 @@ services:
     build:
       context: .
       dockerfile: services/iam/Dockerfile
+      network: host
     container_name: service_iam
     logging: *default-logging
     restart: unless-stopped
@@ -91,7 +92,10 @@ services:
       IAM_DB_USER: ${IAM_DB_USER}
       IAM_DB_PASSWORD: ${IAM_DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-8h}
       COOKIE_SECRET: ${COOKIE_SECRET}
+      ADMIN_INITIAL_EMAIL: ${ADMIN_INITIAL_EMAIL:-admin@docswiki.local}
+      ADMIN_INITIAL_PASSWORD: ${ADMIN_INITIAL_PASSWORD:-123456}
     depends_on:
       postgres:
         condition: service_healthy
@@ -102,6 +106,7 @@ services:
     build:
       context: .
       dockerfile: services/content/Dockerfile
+      network: host
     container_name: service_content
     logging: *default-logging
     restart: unless-stopped
@@ -123,6 +128,7 @@ services:
     build:
       context: .
       dockerfile: services/nlp/Dockerfile
+      network: host
     container_name: service_nlp
     logging: *default-logging
     restart: unless-stopped
@@ -147,6 +153,7 @@ services:
     build:
       context: .
       dockerfile: services/search/Dockerfile
+      network: host
     container_name: service_search
     logging: *default-logging
     restart: unless-stopped
@@ -171,6 +178,7 @@ services:
     build:
       context: .
       dockerfile: frontend/Dockerfile
+      network: host
     container_name: frontend_app
     logging: *default-logging
     restart: unless-stopped

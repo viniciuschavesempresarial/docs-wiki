@@ -112,6 +112,18 @@ jobs:
           npm ci --loglevel=error --no-audit
           npm run build
 
+      - name: 🔒 Garantir Certificados SSL
+        run: |
+          mkdir -p certs
+          if [ ! -f certs/fullchain.pem ] || [ ! -f certs/privkey.pem ]; then
+            openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+              -keyout certs/privkey.pem \
+              -out certs/fullchain.pem \
+              -subj "/CN=docswiki.local"
+            chmod 644 certs/*.pem
+            echo "✅ Certificados SSL autoassinados gerados com sucesso."
+          fi
+
       - name: Subir Containers Atualizados (Build Paralelo)
         run: |
           docker compose build --parallel
