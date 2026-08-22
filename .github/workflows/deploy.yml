@@ -8,15 +8,17 @@ permissions:
   contents: write
 
 jobs:
-  build:
-    name: 🏗️ 1. Build e Validação de Tipagem
+  build-test-deploy:
+    name: 🏗️ CI/CD Pipeline (Build, Test, Deploy & Tag)
     environment: staging
     runs-on: self-hosted
     steps:
       - name: Checkout do Repositório
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: 🔐 Gerar arquivo .env para build e validação
+      - name: 🔐 Gerar arquivo .env
         env:
           ENV_STAGING: ${{ secrets.ENV_STAGING }}
         run: |
@@ -43,53 +45,14 @@ jobs:
       - name: Validar Sintaxe do Docker Compose
         run: docker compose config
 
-      - name: Upload Workspace Compilado
-        uses: actions/upload-artifact@v4
-        with:
-          name: workspace-artifact
-          path: |
-            .
-            !.git
-          include-hidden-files: true
-
-  test:
-    name: 🧪 2. Suíte de Testes Automatizados (Jest)
-    needs: build
-    environment: staging
-    runs-on: self-hosted
-    steps:
-      - name: Download Workspace Compilado
-        uses: actions/download-artifact@v4
-        with:
-          name: workspace-artifact
-          path: .
-
-      - name: Setup Node.js v20
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-
       - name: Executar Testes no Backend (Jest + Supertest)
         run: npm run test:backend
 
       - name: Executar Testes no Frontend (Jest + RTL)
         run: npm run test:frontend
 
-  deploy:
-    name: 🚀 3. Deploy no Homelab Proxmox
-    needs: test
-    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
-    environment: staging
-    runs-on: self-hosted
-    steps:
-      - name: Download Workspace Compilado
-        uses: actions/download-artifact@v4
-        with:
-          name: workspace-artifact
-          path: .
-
       - name: 🔒 Garantir Certificados SSL
+        if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
         run: |
           mkdir -p certs
           if [ ! -f certs/fullchain.pem ] || [ ! -f certs/privkey.pem ]; then
@@ -102,27 +65,17 @@ jobs:
           fi
 
       - name: Subir Containers Atualizados (Build Paralelo)
+        if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
         run: |
           docker compose build --parallel
           docker compose up -d --remove-orphans
 
       - name: Limpeza de Imagens Órfãs
+        if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
         run: docker image prune -f
 
-  tag-lts:
-    name: 🏷️ 4. Gerar Tag LTS
-    needs: deploy
-    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
-    runs-on: self-hosted
-    outputs:
-      new_tag: ${{ steps.create_tag.outputs.new_tag }}
-    steps:
-      - name: Checkout do Repositório
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - name: Calcular e Publicar Tag LTS
+        if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
         id: create_tag
         run: |
           DATE=$(date +'%Y%m%d')
