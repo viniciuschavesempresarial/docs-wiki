@@ -61,8 +61,6 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
-      # Eleva o watermark para 85% para não disparar alarmes em ambiente de teste
-      RABBITMQ_VM_MEMORY_HIGH_WATERMARK: 0.85
       # Suprime logs de nível [notice] e [info], exibindo apenas warning e error
       RABBITMQ_LOG: "warning"
     volumes:
