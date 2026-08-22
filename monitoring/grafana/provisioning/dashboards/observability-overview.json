@@ -271,7 +271,7 @@
             "type": "prometheus",
             "uid": "VictoriaMetrics"
           },
-          "expr": "docker_container_mem_usage_total{project=\"$project\", environment=\"$environment\", container_name=~\"$container\"}",
+          "expr": "docker_container_mem_usage{project=\"$project\", environment=\"$environment\", container_name=~\"$container\"}",
           "legendFormat": "{{container_name}}",
           "refId": "A"
         }
@@ -449,10 +449,10 @@
           "value": "$__all"
         },
         "datasource": {
-          "type": "loki",
-          "uid": "Loki"
+          "type": "prometheus",
+          "uid": "VictoriaMetrics"
         },
-        "definition": "label_values(container_name)",
+        "definition": "label_values(docker_container_cpu_usage_total, container_name)",
         "hide": 0,
         "includeAll": true,
         "label": "Container",
@@ -460,7 +460,7 @@
         "name": "container",
         "options": [],
         "query": {
-          "query": "label_values(container_name)",
+          "query": "label_values(docker_container_cpu_usage_total, container_name)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 1,
