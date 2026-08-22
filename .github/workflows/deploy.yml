@@ -133,6 +133,18 @@ jobs:
             echo "ℹ️ Arquivo .env inicializado a partir de .env.example."
           fi
 
+      - name: Setup Node.js v20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Instalar Dependências do Monorepo
+        run: npm ci --loglevel=error --no-audit
+
+      - name: Compilar TypeScript em Todos os Pacotes
+        run: npm run build
+
       - name: Reconstruir e Subir Containers da Versão LTS Estável
         run: |
           docker compose build --parallel
