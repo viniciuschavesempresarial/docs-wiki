@@ -61,10 +61,10 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
-      # Define o limite de consumo de memória interna de forma absoluta (seguro para a VM de 3GB)
-      RABBITMQ_VM_MEMORY_HIGH_WATERMARK: "512MiB"
-      # Começa a paginar mensagens para o disco quando atingir 50% do watermark (256MB)
-      RABBITMQ_VM_MEMORY_HIGH_WATERMARK_PAGING_RATIO: 0.5
+      # Eleva o watermark para 85% para não disparar alarmes em ambiente de teste
+      RABBITMQ_VM_MEMORY_HIGH_WATERMARK: 0.85
+      # Suprime logs de nível [notice] e [info], exibindo apenas warning e error
+      RABBITMQ_LOG: "warning"
     volumes:
       - rabbitmqdata:/var/lib/rabbitmq
     healthcheck:
