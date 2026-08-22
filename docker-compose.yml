@@ -188,7 +188,9 @@ services:
   telegraf:
     image: telegraf:1.30-alpine
     container_name: homelab_telegraf
-    user: "root"
+    user: "telegraf:999"
+    group_add:
+      - "999"
     logging: *default-logging
     restart: unless-stopped
     environment:
