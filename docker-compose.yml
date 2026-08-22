@@ -67,9 +67,9 @@ services:
       - rabbitmqdata:/var/lib/rabbitmq
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-      interval: 10s
+      interval: 60s
       timeout: 10s
-      retries: 5
+      retries: 3
       start_period: 30s
     ports:
       - "${RABBITMQ_PORT}:5672"
