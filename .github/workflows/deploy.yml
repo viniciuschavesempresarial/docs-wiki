@@ -9,14 +9,12 @@ permissions:
 
 jobs:
   build-test-deploy:
-    name: 🏗️ CI/CD Pipeline (Build, Test, Deploy & Tag)
+    name: 🏗️ 1. Build, Test e Deploy
     environment: staging
     runs-on: self-hosted
     steps:
       - name: Checkout do Repositório
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: 🔐 Gerar arquivo .env
         env:
@@ -52,7 +50,6 @@ jobs:
         run: npm run test:frontend
 
       - name: 🔒 Garantir Certificados SSL
-        if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
         run: |
           mkdir -p certs
           if [ ! -f certs/fullchain.pem ] || [ ! -f certs/privkey.pem ]; then
@@ -65,17 +62,27 @@ jobs:
           fi
 
       - name: Subir Containers Atualizados (Build Paralelo)
-        if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
         run: |
           docker compose build --parallel
           docker compose up -d --remove-orphans
 
       - name: Limpeza de Imagens Órfãs
-        if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
         run: docker image prune -f
 
+  tag-lts:
+    name: 🏷️ 2. Gerar Tag LTS
+    needs: build-test-deploy
+    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
+    runs-on: self-hosted
+    outputs:
+      new_tag: ${{ steps.create_tag.outputs.new_tag }}
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Calcular e Publicar Tag LTS
-        if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
         id: create_tag
         run: |
           DATE=$(date +'%Y%m%d')
@@ -89,3 +96,45 @@ jobs:
           
           echo "new_tag=$TAG_NAME" >> $GITHUB_OUTPUT
           echo "Tag LTS $TAG_NAME criada com sucesso!"
+
+  rollback:
+    name: 🔄 3. Rollback Automático para Última Tag LTS
+    needs: build-test-deploy
+    if: failure() && github.ref == 'refs/heads/staging' && github.event_name == 'push'
+    runs-on: self-hosted
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Identificar Última Tag LTS e Fazer Checkout
+        run: |
+          # Listar as tags LTS, ordenar de forma semântica/versão e obter a última
+          LATEST_LTS=$(git tag -l "v1.0.*-lts-*" | sort -V | tail -n 1)
+          
+          if [ -z "$LATEST_LTS" ]; then
+            echo "⚠️ Nenhuma tag LTS anterior encontrada no repositório. Abortando rollback."
+            exit 1
+          fi
+          
+          echo "🔄 Rollback iniciado para a versão LTS: $LATEST_LTS"
+          git checkout "$LATEST_LTS"
+
+      - name: 🔐 Gerar arquivo .env para o Rollback
+        env:
+          ENV_STAGING: ${{ secrets.ENV_STAGING }}
+        run: |
+          if [ -n "$ENV_STAGING" ]; then
+            echo "$ENV_STAGING" > .env
+            echo "✅ Arquivo .env gerado a partir do Secret ENV_STAGING."
+          elif [ -f .env.example ]; then
+            cp .env.example .env
+            echo "ℹ️ Arquivo .env inicializado a partir de .env.example."
+          fi
+
+      - name: Reconstruir e Subir Containers da Versão LTS Estável
+        run: |
+          docker compose build --parallel
+          docker compose up -d --remove-orphans
+          echo "✅ Rollback executado com sucesso para a versão $LATEST_LTS"
