@@ -3,8 +3,6 @@ name: CI/CD Pipeline - Docs-Wiki Homelab
 on:
   push:
     branches: [ staging ]
-  pull_request:
-    branches: [ staging ]
 
 permissions:
   contents: write
@@ -45,38 +43,32 @@ jobs:
       - name: Validar Sintaxe do Docker Compose
         run: docker compose config
 
+      - name: Upload Workspace Compilado
+        uses: actions/upload-artifact@v4
+        with:
+          name: workspace-artifact
+          path: |
+            .
+            !.git
+          include-hidden-files: true
+
   test:
     name: 🧪 2. Suíte de Testes Automatizados (Jest)
     needs: build
     environment: staging
     runs-on: self-hosted
     steps:
-      - name: Checkout do Repositório
-        uses: actions/checkout@v4
-
-      - name: 🔐 Gerar arquivo .env para execução dos testes
-        env:
-          ENV_STAGING: ${{ secrets.ENV_STAGING }}
-        run: |
-          if [ -n "$ENV_STAGING" ]; then
-            echo "$ENV_STAGING" > .env
-            echo "✅ Arquivo .env gerado a partir do Secret ENV_STAGING."
-          elif [ -f .env.example ]; then
-            cp .env.example .env
-            echo "ℹ️ Arquivo .env inicializado a partir de .env.example."
-          fi
+      - name: Download Workspace Compilado
+        uses: actions/download-artifact@v4
+        with:
+          name: workspace-artifact
+          path: .
 
       - name: Setup Node.js v20
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
-
-      - name: Instalar Dependências
-        run: npm ci --loglevel=error --no-audit
-
-      - name: Compilar Pacotes do Monorepo
-        run: npm run build
 
       - name: Executar Testes no Backend (Jest + Supertest)
         run: npm run test:backend
@@ -91,26 +83,11 @@ jobs:
     environment: staging
     runs-on: self-hosted
     steps:
-      - name: Checkout do Repositório
-        uses: actions/checkout@v4
-
-      - name: 🔐 Gerar arquivo .env a partir do Secret do Environment
-        env:
-          ENV_STAGING: ${{ secrets.ENV_STAGING }}
-        run: |
-          echo "$ENV_STAGING" > .env
-          echo "✅ Arquivo .env gerado com sucesso a partir do Environment Staging."
-
-      - name: Setup Node.js v20
-        uses: actions/setup-node@v4
+      - name: Download Workspace Compilado
+        uses: actions/download-artifact@v4
         with:
-          node-version: 20
-          cache: 'npm'
-
-      - name: Instalar Dependências e Compilar Monorepo
-        run: |
-          npm ci --loglevel=error --no-audit
-          npm run build
+          name: workspace-artifact
+          path: .
 
       - name: 🔒 Garantir Certificados SSL
         run: |
