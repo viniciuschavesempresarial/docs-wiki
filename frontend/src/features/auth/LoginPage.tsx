@@ -6,7 +6,10 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Card } from '../../components/ui/Card';
 
+import { useDocumentMetadata } from '../../hooks/useDocumentMetadata';
+
 export const LoginPage: React.FC = () => {
+  useDocumentMetadata('Entrar - Acessar Conta', 'Faça login na plataforma Docs-Wiki para gerenciar, editar e pesquisar na base de conhecimento corporativa com inteligência artificial.');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [errorMsg, setErrorMsg] = useState('');

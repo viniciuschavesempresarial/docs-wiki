@@ -8,8 +8,11 @@ import { Button } from '../../components/ui/Button';
 import { Select } from '../../components/ui/Select';
 import { MaterialDiffResponse } from '@shared/contracts';
 
+import { useDocumentMetadata } from '../../hooks/useDocumentMetadata';
+
 export const DiffPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  useDocumentMetadata('Comparar Versões', 'Compare as diferenças e alterações linha por linha entre diferentes revisões históricas do mesmo documento.');
   const navigate = useNavigate();
 
   const [v1, setV1] = useState<string>('1');

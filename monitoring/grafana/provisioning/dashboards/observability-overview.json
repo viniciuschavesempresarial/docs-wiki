@@ -213,7 +213,7 @@
             "type": "prometheus",
             "uid": "VictoriaMetrics"
           },
-          "expr": "rate(docker_container_cpu_usage_total{project=\"$project\", environment=\"$environment\", container_name=~\"$container\"}[1m])",
+          "expr": "rate(docker_container_cpu_usage_total{project=\"$project\", environment=\"$environment\", container_name=~\"$container\"}[1m]) / 10000000",
           "legendFormat": "{{container_name}}",
           "refId": "A"
         }

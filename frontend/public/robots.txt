@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /editor/
+Disallow: /api/
+
+Sitemap: https://docswiki.homelab/sitemap.xml

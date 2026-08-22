@@ -1,7 +1,8 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Navbar } from './components/ui/Navbar';
+import { Footer } from './components/ui/Footer';
 import { HomePage } from './features/catalog/HomePage';
 import { LoginPage } from './features/auth/LoginPage';
 import { RegisterPage } from './features/auth/RegisterPage';
@@ -10,6 +11,7 @@ import { EditorPage } from './features/editor/EditorPage';
 import { DiffPage } from './features/diff/DiffPage';
 import { ChatPage } from './features/rag/ChatPage';
 import { UsersManagementPage } from './features/admin/UsersManagementPage';
+import { NotFoundPage } from './features/catalog/NotFoundPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -57,9 +59,10 @@ export const App: React.FC = () => {
                   </AuthGuard>
                 }
               />
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </main>
+          <Footer />
         </div>
       </BrowserRouter>
     </QueryClientProvider>

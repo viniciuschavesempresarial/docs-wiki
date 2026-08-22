@@ -8,7 +8,10 @@ import { AIResponseBox } from './AIResponseBox';
 import { Button } from '../../components/ui/Button';
 import { ChatResponse } from '@shared/contracts';
 
+import { useDocumentMetadata } from '../../hooks/useDocumentMetadata';
+
 export const ChatPage: React.FC = () => {
+  useDocumentMetadata('Chat com IA (RAG)', 'Tire dúvidas e interaja com o assistente inteligente da plataforma utilizando a técnica de Retrieval-Augmented Generation (RAG) sobre seus próprios documentos.');
   const [pergunta, setPergunta] = useState('');
   const { messages, selectedDocIds, addMessage, clearMessages, isLoading, setIsLoading } =
     useChatStore();
