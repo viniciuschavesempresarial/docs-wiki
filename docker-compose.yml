@@ -68,11 +68,11 @@ services:
     volumes:
       - rabbitmqdata:/var/lib/rabbitmq
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      test: ["CMD", "nc", "-z", "localhost", "5672"]
       interval: 10s
-      timeout: 10s
+      timeout: 5s
       retries: 5
-      start_period: 30s
+      start_period: 15s
     ports:
       - "${RABBITMQ_PORT}:5672"
       - "${RABBITMQ_MGMT_PORT}:15672"
