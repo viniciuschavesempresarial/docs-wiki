@@ -6,7 +6,10 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Card } from '../../components/ui/Card';
 
+import { useDocumentMetadata } from '../../hooks/useDocumentMetadata';
+
 export const RegisterPage: React.FC = () => {
+  useDocumentMetadata('Criar Conta - Registrar-se', 'Crie sua conta na plataforma Docs-Wiki para começar a criar, organizar e gerenciar páginas e documentos de conhecimento.');
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');

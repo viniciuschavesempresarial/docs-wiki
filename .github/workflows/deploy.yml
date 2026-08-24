@@ -2,20 +2,31 @@ name: CI/CD Pipeline - Docs-Wiki Homelab
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches: [ staging ]
 
 permissions:
   contents: write
 
 jobs:
-  build:
-    name: 🏗️ 1. Build e Validação de Tipagem
+  build-test-deploy:
+    name: 🏗️ 1. Build, Test e Deploy
+    environment: staging
     runs-on: self-hosted
     steps:
       - name: Checkout do Repositório
         uses: actions/checkout@v4
+
+      - name: 🔐 Gerar arquivo .env
+        env:
+          ENV_STAGING: ${{ secrets.ENV_STAGING }}
+        run: |
+          if [ -n "$ENV_STAGING" ]; then
+            echo "$ENV_STAGING" > .env
+            echo "✅ Arquivo .env gerado a partir do Secret ENV_STAGING."
+          elif [ -f .env.example ]; then
+            cp .env.example .env
+            echo "ℹ️ Arquivo .env inicializado a partir de .env.example."
+          fi
 
       - name: Setup Node.js v20
         uses: actions/setup-node@v4
@@ -24,7 +35,7 @@ jobs:
           cache: 'npm'
 
       - name: Instalar Dependências do Monorepo
-        run: npm ci
+        run: npm ci --loglevel=error --no-audit
 
       - name: Compilar TypeScript em Todos os Pacotes
         run: npm run build
@@ -32,33 +43,36 @@ jobs:
       - name: Validar Sintaxe do Docker Compose
         run: docker compose config
 
-  test:
-    name: 🧪 2. Suíte de Testes Automatizados (Jest)
-    needs: build
-    runs-on: self-hosted
-    steps:
-      - name: Checkout do Repositório
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js v20
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-
-      - name: Instalar Dependências
-        run: npm ci
-
       - name: Executar Testes no Backend (Jest + Supertest)
         run: npm run test:backend
 
       - name: Executar Testes no Frontend (Jest + RTL)
         run: npm run test:frontend
 
+      - name: 🔒 Garantir Certificados SSL
+        run: |
+          mkdir -p certs
+          if [ ! -f certs/fullchain.pem ] || [ ! -f certs/privkey.pem ]; then
+            openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+              -keyout certs/privkey.pem \
+              -out certs/fullchain.pem \
+              -subj "/CN=docswiki.local"
+            chmod 644 certs/*.pem
+            echo "✅ Certificados SSL autoassinados gerados com sucesso."
+          fi
+
+      - name: Subir Containers Atualizados (Build Paralelo)
+        run: |
+          docker compose build --parallel
+          docker compose up -d --remove-orphans
+
+      - name: Limpeza de Imagens Órfãs
+        run: docker image prune -f
+
   tag-lts:
-    name: 🏷️ 3. Gerar Tag LTS
-    needs: test
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    name: 🏷️ 2. Gerar Tag LTS
+    needs: build-test-deploy
+    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
     runs-on: self-hosted
     outputs:
       new_tag: ${{ steps.create_tag.outputs.new_tag }}
@@ -74,8 +88,8 @@ jobs:
           DATE=$(date +'%Y%m%d')
           TAG_NAME="v1.0.${{ github.run_number }}-lts-${DATE}"
           
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "Vinicius Chaves"
+          git config user.email "viniciuschaves.empresarial@gmail.com"
           
           git tag -a "$TAG_NAME" -m "Release LTS automática gerada no build #${{ github.run_number }}"
           git push origin "$TAG_NAME"
@@ -83,26 +97,56 @@ jobs:
           echo "new_tag=$TAG_NAME" >> $GITHUB_OUTPUT
           echo "Tag LTS $TAG_NAME criada com sucesso!"
 
-  deploy:
-    name: 🚀 4. Deploy no Homelab Proxmox
-    needs: tag-lts
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+  rollback:
+    name: 🔄 3. Rollback Automático para Última Tag LTS
+    needs: build-test-deploy
+    if: failure() && github.ref == 'refs/heads/staging' && github.event_name == 'push'
     runs-on: self-hosted
     steps:
       - name: Checkout do Repositório
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Validar Existência do .env no Host
+      - name: 🔍 Identificar Última Tag LTS e Fazer Checkout
         run: |
-          if [ ! -f .env ]; then
-            echo "AVISO: Arquivo .env não encontrado. Copiando de .env.example para inicialização..."
+          # Listar as tags LTS, ordenar de forma semântica/versão e obter a última
+          LATEST_LTS=$(git tag -l "v1.0.*-lts-*" | sort -V | tail -n 1)
+          
+          if [ -z "$LATEST_LTS" ]; then
+            echo "⚠️ Nenhuma tag LTS anterior encontrada no repositório. Abortando rollback."
+            exit 1
+          fi
+          
+          echo "🔄 Rollback iniciado para a versão LTS: $LATEST_LTS"
+          git checkout "$LATEST_LTS"
+
+      - name: 🔐 Gerar arquivo .env para o Rollback
+        env:
+          ENV_STAGING: ${{ secrets.ENV_STAGING }}
+        run: |
+          if [ -n "$ENV_STAGING" ]; then
+            echo "$ENV_STAGING" > .env
+            echo "✅ Arquivo .env gerado a partir do Secret ENV_STAGING."
+          elif [ -f .env.example ]; then
             cp .env.example .env
+            echo "ℹ️ Arquivo .env inicializado a partir de .env.example."
           fi
 
-      - name: Subir Containers Atualizados (Build Paralelo)
+      - name: Setup Node.js v20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Instalar Dependências do Monorepo
+        run: npm ci --loglevel=error --no-audit
+
+      - name: Compilar TypeScript em Todos os Pacotes
+        run: npm run build
+
+      - name: Reconstruir e Subir Containers da Versão LTS Estável
         run: |
           docker compose build --parallel
           docker compose up -d --remove-orphans
-
-      - name: Limpeza de Imagens Órfãs
-        run: docker image prune -f
+          echo "✅ Rollback executado com sucesso para a versão $LATEST_LTS"

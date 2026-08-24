@@ -9,7 +9,10 @@ import { CategoryTree } from './CategoryTree';
 import { DocumentCard } from './DocumentCard';
 import { SearchResponse } from '@shared/contracts';
 
+import { useDocumentMetadata } from '../../hooks/useDocumentMetadata';
+
 export const HomePage: React.FC = () => {
+  useDocumentMetadata('Home - Busca Híbrida Inteligente', 'Explore a base de conhecimento do Docs-Wiki com busca híbrida avançada baseada em palavras-chave, semântica e resumos automáticos por IA.');
   const { termo, summarize, dataInicio, dataFim, categoria, tipo, tags, fuzzy } = useFilterStore();
 
   const { data, isLoading, isError, refetch } = useQuery<SearchResponse>({

@@ -1,53 +1,32 @@
 # ==========================================
-# STAGE 1: BUILDER
+# RUNNER: SEARCH SERVICE (PRODUÇÃO)
 # ==========================================
-FROM node:20-alpine AS builder
-
-WORKDIR /app
-
-# Instalar ferramentas de build para pacotes nativos
-RUN apk add --no-cache python3 make g++
-
-# Copiar arquivos de configuração do monorepo
-COPY package.json package-lock.json tsconfig.base.json ./
-COPY packages/shared/package.json ./packages/shared/
-COPY services/search/package.json ./services/search/
-
-# Instalar todas as dependências do monorepo usando cache
-RUN npm ci
-
-# Copiar código-fonte
-COPY packages/shared ./packages/shared
-COPY services/search ./services/search
-
-# Compilar TypeScript
-RUN npm run build --workspace=@shared/contracts
-RUN npm run build --workspace=search-service
-
-# ==========================================
-# STAGE 2: RUNNER (PRODUÇÃO)
-# ==========================================
-FROM node:20-alpine AS runner
+FROM node:20-alpine
 
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=3004
 
-# Criação de usuário e grupo não-root
+# Criação de usuário e grupo não-root para segurança
 RUN addgroup -g 10001 -S nodejs && \
     adduser -u 10001 -S nodejs -G nodejs
 
-# Copiar manifests e instalar apenas dependências de produção
-COPY package.json package-lock.json ./
+# Copiar manifests do monorepo para resolução exata das dependências
+COPY package.json ./
 COPY packages/shared/package.json ./packages/shared/
+COPY services/iam/package.json ./services/iam/
+COPY services/content/package.json ./services/content/
+COPY services/nlp/package.json ./services/nlp/
 COPY services/search/package.json ./services/search/
+COPY frontend/package.json ./frontend/
 
-RUN npm ci --omit=dev && npm cache clean --force
+# Instalar estritamente dependências de produção
+RUN npm install --omit=dev --no-audit --loglevel=error
 
-# Copiar artefatos compilados
-COPY --from=builder --chown=nodejs:nodejs /app/packages/shared/dist ./packages/shared/dist
-COPY --from=builder --chown=nodejs:nodejs /app/services/search/dist ./services/search/dist
+# Copiar artefatos pré-compilados pelo pipeline
+COPY --chown=nodejs:nodejs packages/shared/dist ./packages/shared/dist
+COPY --chown=nodejs:nodejs services/search/dist ./services/search/dist
 
 USER nodejs
 

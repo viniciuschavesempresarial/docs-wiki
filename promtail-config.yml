@@ -31,7 +31,7 @@ scrape_configs:
       - labels:
           stream:
       - regex:
-          expression: "^/var/lib/docker/containers/(?P<container_id>[a-f0-9]+)/.*json\\.log$"
+          expression: '^/var/lib/docker/containers/(?P<container_id>[a-f0-9]+)/.*json\.log$'
           source: filename
       - labels:
           container_id:

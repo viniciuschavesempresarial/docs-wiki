@@ -26,7 +26,10 @@ export interface AdminUserItem {
   created_at: string;
 }
 
+import { useDocumentMetadata } from '../../hooks/useDocumentMetadata';
+
 export const UsersManagementPage: React.FC = () => {
+  useDocumentMetadata('Painel Admin - Gerenciar Usuários', 'Gerenciamento centralizado de usuários, permissões de acesso, papéis e segurança do sistema Docs-Wiki.');
   const queryClient = useQueryClient();
   const { user: currentUser } = useAuth();
 

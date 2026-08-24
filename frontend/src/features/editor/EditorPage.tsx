@@ -32,8 +32,11 @@ Este documento segue a especificação **Open Knowledge Format (OKF)** combinand
 - Suporte a geração automática de embeddings e chunking estruturado.
 `;
 
+import { useDocumentMetadata } from '../../hooks/useDocumentMetadata';
+
 export const EditorPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  useDocumentMetadata(id ? 'Editar Documento' : 'Novo Documento', 'Editor avançado com suporte a metadados estruturados (OKF), versionamento imutável e Markdown para a base de conhecimento.');
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuth();

@@ -37,16 +37,24 @@ ALTER USER search_user SET search_path TO busca, public;
 GRANT USAGE ON SCHEMA iam TO iam_user;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA iam TO iam_user;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA iam TO iam_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA iam GRANT ALL PRIVILEGES ON TABLES TO iam_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA iam GRANT ALL PRIVILEGES ON SEQUENCES TO iam_user;
 
 GRANT USAGE ON SCHEMA conteudo TO content_user;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA conteudo TO content_user;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA conteudo TO content_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA conteudo GRANT ALL PRIVILEGES ON TABLES TO content_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA conteudo GRANT ALL PRIVILEGES ON SEQUENCES TO content_user;
+
 GRANT USAGE ON SCHEMA busca TO content_user;
 GRANT SELECT, DELETE ON ALL TABLES IN SCHEMA busca TO content_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA busca GRANT SELECT, DELETE ON TABLES TO content_user;
 
 GRANT USAGE ON SCHEMA busca TO search_user;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA busca TO search_user;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA busca TO search_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA busca GRANT ALL PRIVILEGES ON TABLES TO search_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA busca GRANT ALL PRIVILEGES ON SEQUENCES TO search_user;
 
 -- =============================================================================
 -- 4. SCHEMA IAM (AUTENTICAÇÃO & RBAC)
@@ -216,3 +224,17 @@ WITH (m = 16, ef_construction = 64);
 
 -- 5. Foreign Key Index
 CREATE INDEX idx_material_chunks_material_id ON busca.material_chunks(material_id);
+
+-- =============================================================================
+-- 8. GARANTIA FINAL DE PRIVILÉGIOS SOBRE TABELAS CRIADAS
+-- =============================================================================
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA iam TO iam_user;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA iam TO iam_user;
+
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA conteudo TO content_user;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA conteudo TO content_user;
+
+GRANT SELECT, DELETE ON ALL TABLES IN SCHEMA busca TO content_user;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA busca TO search_user;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA busca TO search_user;
+
