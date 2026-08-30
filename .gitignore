@@ -38,3 +38,8 @@ coverage/
 
 #Outros
 prompts/
+diagrams/
+jsons_tests/
+test-cases/utils/
+test-cases/Reports/
+test-cases/Cycles/
