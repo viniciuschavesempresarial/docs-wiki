@@ -1,6 +1,6 @@
-# Estratégia e Arquitetura de Testes — Monorepo QAndora Docs-Wiki
+# Estratégia e Arquitetura de Testes — Monorepo Docs-Wiki
 
-Este documento apresenta a especificação técnica e arquitetura de testes automatizados do ecossistema **QAndora Docs-Wiki**. Ele serve como guia para engenheiros de software, engenheiros de QA e engenheiros de DevOps para entender a cobertura, pirâmide de testes, políticas de mock, ciclos de teste (Test Cycles), suítes End-to-End (Playwright), relatórios executivos de BI e execução em pipelines de CI/CD.
+Este documento apresenta a especificação técnica e arquitetura de testes automatizados do ecossistema **Docs-Wiki**. Ele serve como guia para engenheiros de software, engenheiros de QA e engenheiros de DevOps para entender a cobertura, pirâmide de testes, políticas de mock, ciclos de teste (Test Cycles), suítes End-to-End (Playwright), relatórios executivos de BI e execução em pipelines de CI/CD.
 
 ---
 
