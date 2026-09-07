@@ -132,8 +132,9 @@ let currentUser: typeof mockUser | null = mockUser;
 export const handlers = [
   // --- IAM Auth Handlers ---
   http.post('/api/iam/login', async ({ request }) => {
-    const body = (await request.json()) as { email?: string; senha?: string };
-    if (!body.email || !body.senha) {
+    const body = (await request.json()) as { email?: string; senha?: string; password?: string };
+    const password = body.password || body.senha;
+    if (!body.email || !password) {
       return HttpResponse.json({ message: 'Email e senha são obrigatórios' }, { status: 400 });
     }
     currentUser = mockUser;
@@ -144,8 +145,9 @@ export const handlers = [
   }),
 
   http.post('/api/iam/register', async ({ request }) => {
-    const body = (await request.json()) as { nome?: string; email?: string; senha?: string };
-    if (!body.nome || !body.email || !body.senha) {
+    const body = (await request.json()) as { nome?: string; email?: string; senha?: string; password?: string };
+    const password = body.password || body.senha;
+    if (!body.nome || !body.email || !password) {
       return HttpResponse.json({ message: 'Campos incompletos' }, { status: 400 });
     }
     currentUser = {
