@@ -38,8 +38,10 @@ coverage/
 
 #Outros
 prompts/
+
+#tests
 diagrams/
 jsons_tests/
 test-cases/utils/
-test-cases/Reports/
-test-cases/Cycles/
+test-results/
+playwright-report/

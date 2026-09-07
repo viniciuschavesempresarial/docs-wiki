@@ -20,9 +20,16 @@
     "test:search": "npm run --workspace=search-service test",
     "test:backend": "npm run test:iam && npm run test:content && npm run test:nlp && npm run test:search",
     "test:frontend": "npm run --workspace=frontend test",
+    "test:e2e": "npm --prefix test-cases/automated-tests test",
+    "test:e2e:headed": "npm --prefix test-cases/automated-tests run test:headed",
     "lint": "npm run lint --workspaces --if-present"
   },
   "devDependencies": {
     "typescript": "^5.4.5"
+  },
+  "msw": {
+    "workerDirectory": [
+      "frontend\\public"
+    ]
   }
 }

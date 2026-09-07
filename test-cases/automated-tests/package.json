@@ -1,0 +1,25 @@
+{
+  "name": "docswiki-playwright-automation",
+  "version": "1.0.0",
+  "description": "Playwright Automated Test Suites for Docs-Wiki (DW0001)",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:smoke": "playwright test tests/DW0001-R10.spec.ts",
+    "test:r1": "playwright test tests/DW0001-R1.spec.ts",
+    "test:r2": "playwright test tests/DW0001-R2.spec.ts",
+    "test:r3": "playwright test tests/DW0001-R3.spec.ts",
+    "test:r4": "playwright test tests/DW0001-R4.spec.ts",
+    "test:r5": "playwright test tests/DW0001-R5.spec.ts",
+    "test:r6": "playwright test tests/DW0001-R6.spec.ts",
+    "test:r7": "playwright test tests/DW0001-R7.spec.ts",
+    "test:r10": "playwright test tests/DW0001-R10.spec.ts",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.1",
+    "@types/node": "^22.10.2",
+    "typescript": "^5.4.5"
+  }
+}
