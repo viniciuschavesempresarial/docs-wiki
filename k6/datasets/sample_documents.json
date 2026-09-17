@@ -1,0 +1,30 @@
+[
+  {
+    "title": "Arquitetura e Padrões de Observabilidade",
+    "summary": "Guia técnico sobre monitoramento distribuído com VictoriaMetrics, Loki e Grafana.",
+    "content": "# Padrões de Observabilidade\n\nA observabilidade nesta infraestrutura é fundamentada em três pilares integrados:\n1. **Métricas**: Armazenadas no VictoriaMetrics com alta compressão.\n2. **Logs**: Centralizados no Grafana Loki via Promtail.\n3. **Dashboards**: Painéis automatizados para análise de latência percentílica e vazão.",
+    "category": "DevOps",
+    "tags": ["observabilidade", "victoriametrics", "loki", "k6"]
+  },
+  {
+    "title": "Protocolo de Segurança e Gestão de Identidade IAM",
+    "summary": "Especificação de segurança com tokens JWT, cookies httpOnly e autorização baseada em papéis.",
+    "content": "# Segurança e Autenticação\n\nO serviço IAM gerencia credenciais, senhas hasheadas com bcrypt e tokens de sessão.\n- **Access Token**: JWT com algoritmo HS256 e tempo de vida de 8 horas.\n- **Rate Limiting**: Aplicado pelo Nginx limitando rajadas em endpoints sensíveis.",
+    "category": "Segurança",
+    "tags": ["segurança", "iam", "jwt", "rbac"]
+  },
+  {
+    "title": "Indexação e Busca Híbrida Semântica",
+    "summary": "Mecanismo de busca combinando BM25 / Full-Text Search com busca vetorial pgvector.",
+    "content": "# Busca Híbrida Inteligente\n\nA busca utiliza embeddings de 768 dimensões para matching semântico e índices GIN no PostgreSQL para correspondência textual exata.\nOs resultados são combinados usando o algoritmo Reciprocal Rank Fusion (RRF).",
+    "category": "Banco de Dados",
+    "tags": ["busca", "pgvector", "nlp", "rag"]
+  },
+  {
+    "title": "Processamento Assíncrono com RabbitMQ",
+    "summary": "Pipelines assíncronos para geração de embeddings e chunking de documentos em segundo plano.",
+    "content": "# Mensageria e Filas\n\nQuando um documento é criado ou atualizado no Content Service, uma mensagem é publicada na exchange de eventos do RabbitMQ.\nO worker NLP consome a mensagem, divide o texto em chunks e calcula os vetores determinísticos.",
+    "category": "Infraestrutura",
+    "tags": ["rabbitmq", "mensageria", "async", "workers"]
+  }
+]

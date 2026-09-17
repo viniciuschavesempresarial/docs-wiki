@@ -280,3 +280,69 @@ npx playwright show-report
    * Nunca faça chamadas reais para as APIs do Google Gemini Studio durante a execução de suítes de testes automatizados ou em esteiras de CI/CD. Utilize sempre stubs de resposta predefinidos para garantir tempo de execução previsível (< 3s por suíte) e custo zero.
 7. **Rastreabilidade Bidirecional (Traceability)**:
    * Cada arquivo de teste E2E (`DW0001-RX.spec.ts`) mapeia diretamente para seu ciclo (`DW0001-RX.md`) e para os casos de teste atômicos (`DW-TX.md`), garantindo que alterações no produto possam ser auditadas e refletidas imediatamente nos relatórios executivos de BI em [test-cases/Reports/](test-cases/Reports).
+
+---
+
+## 7. Testes de Performance & Carga Contínua (Grafana k6)
+
+Para validação de estabilidade, capacidade de vazão (Throughput / RPS) e latência sob concorrência, o monorepo inclui uma suíte completa de **Grafana k6** integrada ao nó de observabilidade.
+
+```
+                      +---------------------------------------+
+                      |         K6 LOAD GENERATOR             |
+                      |   (Container: homelab_k6_runner)      |
+                      +-------------------+-------------------+
+                                          |
+                   [1. Tráfego HTTP/REST] | [2. Métricas Prometheus RW]
+                                          v
+      +-----------------------------------+-----------------------------------+
+      |                                   |                                   |
+      v                                   v                                   v
++------------------+             +------------------+                +------------------+
+|   NGINX REVERSE  |             | VICTORIAMETRICS  | <------------- |     TELEGRAF     |
+|      PROXY       |             |   (:8428/write)  | (Host/Docker)  | (Métricas de SO) |
++--------+---------+             +--------+---------+                +------------------+
+```
+
+### 7.1. Política de Custo Zero (Zero Token Consumption)
+Todos os testes de performance executam sem gerar custos ou consumir cotas de APIs de IA:
+- **Search & RAG Service**: Opera com `GEMINI_API_KEY=mock_gemini_api_key`, ativando o fallback determinístico local do `GeminiClient`.
+- **NLP Service**: Processa embeddings localmente através de dispersão por hash multiescala (`generateDeterministicEmbedding`), sem chamadas externas.
+
+### 7.2. Perfis de Carga Calibrados
+
+| Perfil | VUs (Usuários Virtuais) | Duração | Objetivo |
+| :--- | :--- | :--- | :--- |
+| **`smoke`** | 5 VUs | 1 min | Sanidade e validação rápida de rotas |
+| **`load`** (padrão) | 15 a 25 VUs | 10 min | Carga operacional típica diária |
+| **`stress`** | Pico até 80 VUs | 5 min | Identificação de ponto de saturação e degradação |
+| **`soak`** | 15 VUs constantes | 20-30 min | Estabilidade contínua e detecção de vazamentos |
+
+### 7.3. SLAs e Thresholds
+- **Taxa de Falha**: `http_req_failed < 1%`
+- **Latência p(95) Global**: `p(95) < 450ms`
+- **Latência p(99) Global**: `p(99) < 900ms`
+- **Autenticação IAM**: `p(95) < 200ms`
+- **Busca & RAG Mock**: `p(95) < 450ms`
+
+### 7.4. Comandos de Execução
+
+#### Executar com Docker Compose (Recomendado):
+```powershell
+# 1. Executar Smoke Test (5 VUs)
+docker compose -f docker-compose.k6.yml run --rm -e SCENARIO=smoke k6
+
+# 2. Executar Load Test Padrão (15 a 25 VUs)
+docker compose -f docker-compose.k6.yml run --rm -e SCENARIO=load k6
+
+# 3. Executar Stress Test (Pico em 80 VUs)
+docker compose -f docker-compose.k6.yml run --rm -e SCENARIO=stress k6
+
+# 4. Executar Soak Test (15 VUs sustentados)
+docker compose -f docker-compose.k6.yml run --rm -e SCENARIO=soak k6
+```
+
+#### Visualização dos Resultados:
+- **Dashboard em Tempo Real no Grafana**: Acesse `http://localhost:3000` -> Pasta `DocsWiki` -> Dashboard `Docs-Wiki: Testes de Carga & Performance (k6)`.
+- **Relatório Estático HTML / JSON**: Gerado automaticamente após cada teste em `./k6/reports/k6-summary.html` e `./k6/reports/k6-summary.json`.
+

@@ -13,6 +13,7 @@ x-logging: &default-logging
 
 networks:
   monitoring_net:
+    name: books_tool_monitoring_net
     driver: bridge
 
 volumes:

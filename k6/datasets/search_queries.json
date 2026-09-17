@@ -1,0 +1,42 @@
+[
+  {
+    "query": "arquitetura de microsserviços",
+    "filterCategory": "Engenharia",
+    "ragQuestion": "Como os microsserviços se comunicam no sistema Docs-Wiki?"
+  },
+  {
+    "query": "autenticação JWT e RBAC",
+    "filterCategory": "Segurança",
+    "ragQuestion": "Qual é a validade padrão do token de acesso JWT?"
+  },
+  {
+    "query": "busca vetorial pgvector",
+    "filterCategory": "Banco de Dados",
+    "ragQuestion": "Como o pgvector calcula a similaridade por cosseno com 768 dimensões?"
+  },
+  {
+    "query": "mensageria RabbitMQ eventos",
+    "filterCategory": "Infraestrutura",
+    "ragQuestion": "Qual fila consome os eventos de novos documentos para indexação NLP?"
+  },
+  {
+    "query": "cache Redis ttl estratégia",
+    "filterCategory": "Performance",
+    "ragQuestion": "Qual é o tempo de expiração padrão para respostas de busca em cache?"
+  },
+  {
+    "query": "observabilidade VictoriaMetrics Prometheus",
+    "filterCategory": "DevOps",
+    "ragQuestion": "Como o VictoriaMetrics coleta métricas enviadas pelo Telegraf e k6?"
+  },
+  {
+    "query": "versionamento git-like documentos",
+    "filterCategory": "Conteúdo",
+    "ragQuestion": "Como funciona o versionamento semântico de documentos na plataforma?"
+  },
+  {
+    "query": "rate limiting nginx segurança",
+    "filterCategory": "Borda",
+    "ragQuestion": "Quantas requisições por segundo são permitidas no endpoint de autenticação?"
+  }
+]

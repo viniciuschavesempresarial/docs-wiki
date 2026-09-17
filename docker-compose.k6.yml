@@ -1,0 +1,36 @@
+# =============================================================================
+# DOCKER COMPOSE - NÓ DE GERAÇÃO DE CARGA E PERFORMANCE (GRAFANA K6)
+# =============================================================================
+# Executa a suíte de testes k6 localmente.
+# - Alvo de Carga: VM Staging (https://192.168.0.107/)
+# - Observabilidade: VictoriaMetrics / Grafana / Loki locais (books_tool_monitoring_net)
+
+services:
+  k6:
+    image: grafana/k6:latest
+    container_name: homelab_k6_runner
+    restart: "no"
+    environment:
+      - BASE_URL=${BASE_URL:-https://192.168.0.107}
+      - SCENARIO=${SCENARIO:-smoke}
+      - ADMIN_EMAIL=${ADMIN_INITIAL_EMAIL:-admin@docswiki.local}
+      - ADMIN_PASSWORD=${ADMIN_INITIAL_PASSWORD:-123456}
+      - K6_PROMETHEUS_REMOTE_URL=http://host.docker.internal:8428/api/v1/write
+      - K6_PROMETHEUS_RW_SERVER_URL=http://host.docker.internal:8428/api/v1/write
+    volumes:
+      - ./k6:/scripts:ro
+      - ./k6/reports:/reports:rw
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    entrypoint: ["k6", "run", "--insecure-skip-tls-verify"]
+    command:
+      - "--out"
+      - "experimental-prometheus-rw=http://host.docker.internal:8428/api/v1/write"
+      - "/scripts/main.js"
+    networks:
+      - monitoring_net
+
+networks:
+  monitoring_net:
+    name: books_tool_monitoring_net
+    external: true
