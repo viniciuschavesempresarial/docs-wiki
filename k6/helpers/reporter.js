@@ -376,12 +376,16 @@ export function generateHtmlReport(data) {
     };
   });
 
+  const faviconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64"><defs><linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0b1329"/><stop offset="100%" stop-color="#1e293b"/></linearGradient><linearGradient id="grafanaGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f97316"/><stop offset="50%" stop-color="#ea580c"/><stop offset="100%" stop-color="#e11d48"/></linearGradient><linearGradient id="k6Grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#a855f7"/><stop offset="50%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient><linearGradient id="chartGrad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#06b6d4"/><stop offset="50%" stop-color="#0284c7"/><stop offset="100%" stop-color="#10b981"/></linearGradient></defs><rect x="2" y="2" width="60" height="60" rx="14" fill="url(#bgGrad)" stroke="#334155" stroke-width="1.5"/><line x1="12" y1="20" x2="52" y2="20" stroke="#334155" stroke-width="0.75" stroke-dasharray="2,2" opacity="0.4"/><line x1="12" y1="32" x2="52" y2="32" stroke="#334155" stroke-width="0.75" stroke-dasharray="2,2" opacity="0.4"/><line x1="12" y1="44" x2="52" y2="44" stroke="#334155" stroke-width="0.75" stroke-dasharray="2,2" opacity="0.4"/><path d="M 16 32 C 16 19 25 13 36 13 C 44 13 50 17 52 23" fill="none" stroke="url(#grafanaGrad)" stroke-width="3.5" stroke-linecap="round"/><circle cx="52" cy="23" r="2.2" fill="#f97316"/><path d="M 28 17 L 44 26 L 36 34 L 46 47 L 37 47 L 31 38 L 27 42 Z" fill="url(#k6Grad)" opacity="0.92"/><path d="M 12 45 L 22 37 L 32 42 L 42 26 L 52 19" fill="none" stroke="url(#chartGrad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="45" r="2" fill="#06b6d4"/><circle cx="22" cy="37" r="2" fill="#0284c7"/><circle cx="32" cy="42" r="2" fill="#0284c7"/><circle cx="42" cy="26" r="2.5" fill="#38bdf8"/><circle cx="52" cy="19" r="3.2" fill="#10b981" stroke="#ffffff" stroke-width="1.2"/></svg>`;
+  const faviconDataUri = `data:image/svg+xml;utf8,${encodeURIComponent(faviconSvg)}`;
+
   return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Docs-Wiki | Relatório de Performance k6</title>
+  <link rel="icon" type="image/svg+xml" href="${faviconDataUri}">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     :root {
@@ -415,23 +419,54 @@ export function generateHtmlReport(data) {
     .header {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
+      align-items: center;
       padding-bottom: 20px;
       border-bottom: 2px solid #cbd5e1;
       margin-bottom: 24px;
       flex-wrap: wrap;
       gap: 16px;
     }
+    .header-brand {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 16px;
+      flex: 1;
+      min-width: 320px;
+    }
+    .header-logo {
+      width: 48px;
+      height: 48px;
+      min-width: 48px;
+      max-width: 48px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .header-logo svg {
+      width: 48px;
+      height: 48px;
+      display: block;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));
+    }
+    .header-title {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
     .header-title h1 {
       font-size: 22px;
       font-weight: 700;
       color: #0f172a;
       margin: 0 0 4px 0;
+      line-height: 1.25;
       letter-spacing: -0.01em;
     }
     .header-title .meta {
       font-size: 13px;
       color: var(--text-muted);
+      line-height: 1.3;
     }
     .badge-status {
       padding: 6px 14px;
@@ -741,9 +776,14 @@ export function generateHtmlReport(data) {
   <div class="container">
     <!-- Header -->
     <div class="header">
-      <div class="header-title">
-        <h1>Docs-Wiki | Relatório de Desempenho e Carga (k6)</h1>
-        <div class="meta">Execução: <strong>${timestamp}</strong> | Duração: <strong>0s a ${durationSeconds}s</strong> | VUs Máx: <strong>${vusMax}</strong></div>
+      <div class="header-brand">
+        <div class="header-logo">
+          ${faviconSvg}
+        </div>
+        <div class="header-title">
+          <h1>Docs-Wiki | Relatório de Desempenho e Carga (k6)</h1>
+          <div class="meta">Execução: <strong>${timestamp}</strong> | Duração: <strong>0s a ${durationSeconds}s</strong> | VUs Máx: <strong>${vusMax}</strong></div>
+        </div>
       </div>
       <div>
         <span class="badge-status ${isSlaPassed ? 'badge-pass' : 'badge-fail'}">

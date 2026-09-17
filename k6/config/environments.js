@@ -18,6 +18,7 @@ export const CONFIG = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
     'User-Agent': 'k6-load-runner/1.0',
+    'X-K6-Test': 'true',
   },
 
   // URLs de Observabilidade
