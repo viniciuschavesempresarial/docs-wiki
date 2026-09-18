@@ -79,6 +79,7 @@ export function getOptions(selectedScenario = __ENV.SCENARIO || 'load') {
 
   return {
     insecureSkipTLSVerify: true,
+    summaryTrendStats: ['avg', 'min', 'med', 'max', 'p(90)', 'p(95)', 'p(99)'],
     thresholds: THRESHOLDS,
     scenarios: {
       [selectedScenario]: scenarioConfig,

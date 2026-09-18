@@ -89,9 +89,6 @@ export class MaterialRepository {
       ? `SELECT COUNT(*) as total FROM conteudo.materiais m LEFT JOIN conteudo.material_versoes v ON m.versao_head_id = v.id ${whereClause};`
       : `SELECT COUNT(*) as total FROM conteudo.materiais m ${whereClause};`;
 
-    const countRes = await db.query(countQuery, values);
-    const total = parseInt(countRes.rows[0]?.total || '0', 10);
-
     const limit = filters.limit || 20;
     const offset = filters.offset || 0;
 
@@ -121,7 +118,13 @@ export class MaterialRepository {
       LEFT JOIN conteudo.material_versoes v ON pm.versao_head_id = v.id
       ORDER BY pm.updated_at DESC;
     `;
-    const dataRes = await db.query(dataQuery, [...values, limit, offset]);
+
+    const [countRes, dataRes] = await Promise.all([
+      db.query(countQuery, values),
+      db.query(dataQuery, [...values, limit, offset]),
+    ]);
+
+    const total = parseInt(countRes.rows[0]?.total || '0', 10);
 
     return {
       materials: dataRes.rows,
