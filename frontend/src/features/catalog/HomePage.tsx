@@ -171,7 +171,12 @@ export const HomePage: React.FC = () => {
             <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
             <span>{actionFeedback}</span>
           </div>
-          <button onClick={() => setActionFeedback(null)} className="text-emerald-400 hover:text-emerald-200">
+          <button
+            id="btn-close-action-feedback"
+            data-testid="btn-close-action-feedback"
+            onClick={() => setActionFeedback(null)}
+            className="text-emerald-400 hover:text-emerald-200"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>

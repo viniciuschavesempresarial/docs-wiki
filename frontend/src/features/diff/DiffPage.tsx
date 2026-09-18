@@ -90,7 +90,7 @@ export const DiffPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <Link to={`/editor/${id}`}>
+          <Link id="link-diff-editar" data-testid="link-diff-editar" to={`/editor/${id}`}>
             <Button
               id="btn-diff-editar"
               data-testid="btn-diff-editar"

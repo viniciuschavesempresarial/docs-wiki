@@ -91,10 +91,10 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
               )}
             </button>
 
-            <Badge id={`badge-cat-${id}`} variant="primary">
+            <Badge id={`badge-cat-${id}`} data-testid={`badge-cat-${id}`} variant="primary">
               {categoria}
             </Badge>
-            <Badge id={`badge-tipo-${id}`} variant="secondary">
+            <Badge id={`badge-tipo-${id}`} data-testid={`badge-tipo-${id}`} variant="secondary">
               {tipo}
             </Badge>
           </div>
@@ -187,7 +187,7 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
           </button>
 
           <div className="flex items-center gap-2">
-            <Link to={`/diff/${id}`}>
+            <Link id={`link-doc-diff-${id}`} data-testid={`link-doc-diff-${id}`} to={`/diff/${id}`}>
               <Button
                 id={`btn-doc-diff-${id}`}
                 data-testid={`btn-doc-diff-${id}`}
@@ -200,7 +200,7 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
                 Diff
               </Button>
             </Link>
-            <Link to={`/editor/${id}`}>
+            <Link id={`link-doc-edit-${id}`} data-testid={`link-doc-edit-${id}`} to={`/editor/${id}`}>
               <Button
                 id={`btn-doc-edit-${id}`}
                 data-testid={`btn-doc-edit-${id}`}

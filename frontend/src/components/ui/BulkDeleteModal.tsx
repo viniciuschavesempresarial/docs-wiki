@@ -48,6 +48,8 @@ export const BulkDeleteModal: React.FC<BulkDeleteModalProps> = ({
             </div>
           </div>
           <button
+            id="btn-close-bulk-delete-modal"
+            data-testid="btn-close-bulk-delete-modal"
             onClick={onClose}
             disabled={isLoading}
             className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition"
