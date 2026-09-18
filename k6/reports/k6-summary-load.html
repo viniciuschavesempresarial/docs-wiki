@@ -401,7 +401,7 @@
         </div>
         <div class="header-title">
           <h1>Docs-Wiki | Relatório de Desempenho e Carga (k6)</h1>
-          <div class="meta">Cenário: <strong>LOAD</strong> | Execução: <strong>2026-09-18 00:38:13</strong> | Duração: <strong>0s a 602s</strong> | VUs Máx: <strong>25</strong></div>
+          <div class="meta">Cenário: <strong>LOAD</strong> | Execução: <strong>2026-09-18 18:33:30</strong> | Duração: <strong>0s a 601s</strong> | VUs Máx: <strong>25</strong></div>
         </div>
       </div>
       <div>
@@ -416,7 +416,7 @@
       <div>
         <div class="title">✓ Conformidade de SLA Aprovada</div>
         <div class="desc">
-          O sistema atendeu a todos os critérios. Latência p(95) de <strong>440.39ms</strong> (&le; 450ms) e Taxa de Falhas de <strong>0.00%</strong> (&lt; 1.0%).
+          O sistema atendeu a todos os critérios. Latência p(95) de <strong>81.20ms</strong> (&le; 450ms) e Taxa de Falhas de <strong>0.00%</strong> (&lt; 1.0%).
         </div>
       </div>
       <div>
@@ -430,16 +430,16 @@
     <div class="grid-kpis">
       <div class="kpi-card">
         <div class="label">Total de Requisições</div>
-        <div class="value">15885</div>
-        <div class="sub">26.40 req/s (Throughput Médio)</div>
+        <div class="value">17481</div>
+        <div class="sub">29.07 req/s (Throughput Médio)</div>
       </div>
 
       <div class="kpi-card">
         <div class="label">Latência p(95)</div>
         <div class="value" style="color: var(--emerald)">
-          440.39 <span style="font-size: 14px; font-weight: normal; color: var(--text-muted);">ms</span>
+          81.20 <span style="font-size: 14px; font-weight: normal; color: var(--text-muted);">ms</span>
         </div>
-        <div class="sub">Meta SLA &le; 450ms (p99: N/Ams)</div>
+        <div class="sub">Meta SLA &le; 450ms (p99: 366.34ms)</div>
       </div>
 
       <div class="kpi-card">
@@ -447,19 +447,19 @@
         <div class="value" style="color: var(--emerald)">
           0.00%
         </div>
-        <div class="sub">0 falhas / 15885 sucessos</div>
+        <div class="sub">0 falhas / 17481 sucessos</div>
       </div>
 
       <div class="kpi-card">
         <div class="label">Tempo Médio (RTT)</div>
-        <div class="value">106.86 <span style="font-size: 14px; font-weight: normal; color: var(--text-muted);">ms</span></div>
-        <div class="sub">Mediana (p50): 39.32ms</div>
+        <div class="value">36.82 <span style="font-size: 14px; font-weight: normal; color: var(--text-muted);">ms</span></div>
+        <div class="sub">Mediana (p50): 14.28ms</div>
       </div>
     </div>
 
     <!-- 1º GRÁFICO DO RELATÓRIO: Perfil de VUs vs Tempo de Execução -->
     <div class="chart-box">
-      <h3>1. Perfil de Usuários Virtuais Concorrentes (VUs vs Tempo de Execução: 0s a 602s)</h3>
+      <h3>1. Perfil de Usuários Virtuais Concorrentes (VUs vs Tempo de Execução: 0s a 601s)</h3>
       <div class="chart-wrapper-large">
         <canvas id="vuTimelineChart"></canvas>
       </div>
@@ -492,14 +492,14 @@
       </div>
     <!-- 4º BLOCO: Evolução Temporal de Latência e Throughput por Endpoint -->
     <div class="chart-box">
-      <h3>5. Evolução Temporal da Latência por Endpoint (0s a 602s)</h3>
+      <h3>5. Evolução Temporal da Latência por Endpoint (0s a 601s)</h3>
       <div class="chart-wrapper-large">
         <canvas id="timelineLineChart"></canvas>
       </div>
     </div>
 
     <div class="chart-box">
-      <h3>6. Evolução Temporal do Throughput por Endpoint (RPS vs Tempo: 0s a 602s)</h3>
+      <h3>6. Evolução Temporal do Throughput por Endpoint (RPS vs Tempo: 0s a 601s)</h3>
       <div class="chart-wrapper-large">
         <canvas id="throughputTimelineChart"></canvas>
       </div>
@@ -529,66 +529,66 @@
           <tbody>
             
               <tr>
-                <td><strong>Busca Híbrida</strong></td>
-                <td>4213</td>
-                <td>7.00 req/s</td>
-                <td>176.2 ms</td>
-                <td>88.1 ms</td>
-                <td>449.8 ms</td>
-                <td style="font-weight: 700; color: var(--rose);">528.2 ms</td>
-                <td>0.0 ms</td>
-                <td style="font-weight: 700; color: var(--emerald);">0.0% (0)</td>
-                <td><span class="status-tag fail">FALHA</span></td>
-              </tr>
-            
-              <tr>
-                <td><strong>Chat RAG (Mock)</strong></td>
-                <td>4213</td>
-                <td>7.00 req/s</td>
-                <td>73.6 ms</td>
-                <td>36.7 ms</td>
-                <td>80.1 ms</td>
-                <td style="font-weight: 700; color: var(--emerald);">356.2 ms</td>
-                <td>0.0 ms</td>
+                <td><strong>Frontend (Home SPA)</strong></td>
+                <td>4653</td>
+                <td>7.74 req/s</td>
+                <td>20.2 ms</td>
+                <td>11.7 ms</td>
+                <td>14.8 ms</td>
+                <td style="font-weight: 700; color: var(--emerald);">25.2 ms</td>
+                <td>295.1 ms</td>
                 <td style="font-weight: 700; color: var(--emerald);">0.0% (0)</td>
                 <td><span class="status-tag ok">OK</span></td>
               </tr>
             
               <tr>
-                <td><strong>Frontend (Home SPA)</strong></td>
-                <td>4213</td>
-                <td>7.00 req/s</td>
-                <td>66.4 ms</td>
-                <td>12.9 ms</td>
-                <td>242.0 ms</td>
-                <td style="font-weight: 700; color: var(--emerald);">315.4 ms</td>
-                <td>0.0 ms</td>
+                <td><strong>Busca Híbrida</strong></td>
+                <td>4653</td>
+                <td>7.74 req/s</td>
+                <td>17.7 ms</td>
+                <td>13.1 ms</td>
+                <td>22.2 ms</td>
+                <td style="font-weight: 700; color: var(--emerald);">50.3 ms</td>
+                <td>67.1 ms</td>
+                <td style="font-weight: 700; color: var(--emerald);">0.0% (0)</td>
+                <td><span class="status-tag ok">OK</span></td>
+              </tr>
+            
+              <tr>
+                <td><strong>Chat RAG (Mock)</strong></td>
+                <td>4653</td>
+                <td>7.74 req/s</td>
+                <td>74.7 ms</td>
+                <td>60.4 ms</td>
+                <td>65.1 ms</td>
+                <td style="font-weight: 700; color: var(--emerald);">73.9 ms</td>
+                <td>439.5 ms</td>
                 <td style="font-weight: 700; color: var(--emerald);">0.0% (0)</td>
                 <td><span class="status-tag ok">OK</span></td>
               </tr>
             
               <tr>
                 <td><strong>Gestão de Materiais</strong></td>
-                <td>2121</td>
-                <td>3.52 req/s</td>
-                <td>131.6 ms</td>
-                <td>35.9 ms</td>
-                <td>396.1 ms</td>
-                <td style="font-weight: 700; color: var(--rose);">551.9 ms</td>
-                <td>0.0 ms</td>
+                <td>2345</td>
+                <td>3.90 req/s</td>
+                <td>38.3 ms</td>
+                <td>13.9 ms</td>
+                <td>107.4 ms</td>
+                <td style="font-weight: 700; color: var(--emerald);">133.3 ms</td>
+                <td>344.5 ms</td>
                 <td style="font-weight: 700; color: var(--emerald);">0.0% (0)</td>
-                <td><span class="status-tag fail">FALHA</span></td>
+                <td><span class="status-tag ok">OK</span></td>
               </tr>
             
               <tr>
                 <td><strong>Autenticação IAM</strong></td>
-                <td>1126</td>
-                <td>1.87 req/s</td>
-                <td>76.8 ms</td>
-                <td>18.2 ms</td>
-                <td>248.3 ms</td>
-                <td style="font-weight: 700; color: var(--emerald);">341.6 ms</td>
-                <td>0.0 ms</td>
+                <td>1171</td>
+                <td>1.95 req/s</td>
+                <td>25.2 ms</td>
+                <td>15.7 ms</td>
+                <td>22.0 ms</td>
+                <td style="font-weight: 700; color: var(--emerald);">43.7 ms</td>
+                <td>320.0 ms</td>
                 <td style="font-weight: 700; color: var(--emerald);">0.0% (0)</td>
                 <td><span class="status-tag ok">OK</span></td>
               </tr>
@@ -628,42 +628,15 @@
                 <tr class="check-row" onclick="toggleSubrow('chk-0')" title="Clique para expandir/recolher sub-linha de diagnóstico">
                   <td>
                     <span class="toggle-icon" id="icon-chk-0">▶</span>
-                    <strong>E2E Content Lista Materiais: status é 200</strong>
+                    <strong>Frontend Home: status é 200</strong>
                     <span class="badge-ok-hint">100% OK</span>
                   </td>
-                  <td style="color: var(--emerald); font-weight: 600;">1684</td>
+                  <td style="color: var(--emerald); font-weight: 600;">4653</td>
                   <td style="color: var(--text-muted); font-weight: 600;">0</td>
                   <td>100.0%</td>
                   <td><span class="status-tag ok">PASSOU</span></td>
                 </tr>
                 <tr id="subrow-chk-0" class="subrow-tr" style="display: none;">
-                  <td colspan="5" style="padding: 0;">
-                    <div class="subrow-container">
-                      <div class="subrow-endpoint">
-                        <span>↳ Endpoint Exato:</span>
-                        <span class="code-tag">/api/v1/content/materials</span>
-                      </div>
-                      
-                        <div style="color: var(--emerald); font-weight: 600; margin-top: 4px; display: flex; align-items: center; gap: 6px;">
-                          <span>✓</span> Status: 100% Sucesso (HTTP 200 OK / 201 Created) — Nenhuma falha registrada.
-                        </div>
-                      
-                    </div>
-                  </td>
-                </tr>
-              
-                <tr class="check-row" onclick="toggleSubrow('chk-1')" title="Clique para expandir/recolher sub-linha de diagnóstico">
-                  <td>
-                    <span class="toggle-icon" id="icon-chk-1">▶</span>
-                    <strong>Frontend Home: status é 200</strong>
-                    <span class="badge-ok-hint">100% OK</span>
-                  </td>
-                  <td style="color: var(--emerald); font-weight: 600;">4213</td>
-                  <td style="color: var(--text-muted); font-weight: 600;">0</td>
-                  <td>100.0%</td>
-                  <td><span class="status-tag ok">PASSOU</span></td>
-                </tr>
-                <tr id="subrow-chk-1" class="subrow-tr" style="display: none;">
                   <td colspan="5" style="padding: 0;">
                     <div class="subrow-container">
                       <div class="subrow-endpoint">
@@ -679,18 +652,18 @@
                   </td>
                 </tr>
               
-                <tr class="check-row" onclick="toggleSubrow('chk-2')" title="Clique para expandir/recolher sub-linha de diagnóstico">
+                <tr class="check-row" onclick="toggleSubrow('chk-1')" title="Clique para expandir/recolher sub-linha de diagnóstico">
                   <td>
-                    <span class="toggle-icon" id="icon-chk-2">▶</span>
+                    <span class="toggle-icon" id="icon-chk-1">▶</span>
                     <strong>E2E Busca Híbrida: status é 200</strong>
                     <span class="badge-ok-hint">100% OK</span>
                   </td>
-                  <td style="color: var(--emerald); font-weight: 600;">4213</td>
+                  <td style="color: var(--emerald); font-weight: 600;">4653</td>
                   <td style="color: var(--text-muted); font-weight: 600;">0</td>
                   <td>100.0%</td>
                   <td><span class="status-tag ok">PASSOU</span></td>
                 </tr>
-                <tr id="subrow-chk-2" class="subrow-tr" style="display: none;">
+                <tr id="subrow-chk-1" class="subrow-tr" style="display: none;">
                   <td colspan="5" style="padding: 0;">
                     <div class="subrow-container">
                       <div class="subrow-endpoint">
@@ -706,18 +679,18 @@
                   </td>
                 </tr>
               
-                <tr class="check-row" onclick="toggleSubrow('chk-3')" title="Clique para expandir/recolher sub-linha de diagnóstico">
+                <tr class="check-row" onclick="toggleSubrow('chk-2')" title="Clique para expandir/recolher sub-linha de diagnóstico">
                   <td>
-                    <span class="toggle-icon" id="icon-chk-3">▶</span>
+                    <span class="toggle-icon" id="icon-chk-2">▶</span>
                     <strong>E2E RAG Chat (Mock): status é 200</strong>
                     <span class="badge-ok-hint">100% OK</span>
                   </td>
-                  <td style="color: var(--emerald); font-weight: 600;">4213</td>
+                  <td style="color: var(--emerald); font-weight: 600;">4653</td>
                   <td style="color: var(--text-muted); font-weight: 600;">0</td>
                   <td>100.0%</td>
                   <td><span class="status-tag ok">PASSOU</span></td>
                 </tr>
-                <tr id="subrow-chk-3" class="subrow-tr" style="display: none;">
+                <tr id="subrow-chk-2" class="subrow-tr" style="display: none;">
                   <td colspan="5" style="padding: 0;">
                     <div class="subrow-container">
                       <div class="subrow-endpoint">
@@ -733,13 +706,40 @@
                   </td>
                 </tr>
               
-                <tr class="check-row" onclick="toggleSubrow('chk-4')" title="Clique para expandir/recolher sub-linha de diagnóstico">
+                <tr class="check-row" onclick="toggleSubrow('chk-3')" title="Clique para expandir/recolher sub-linha de diagnóstico">
                   <td>
-                    <span class="toggle-icon" id="icon-chk-4">▶</span>
+                    <span class="toggle-icon" id="icon-chk-3">▶</span>
                     <strong>E2E IAM /me: status é 200</strong>
                     <span class="badge-ok-hint">100% OK</span>
                   </td>
-                  <td style="color: var(--emerald); font-weight: 600;">1124</td>
+                  <td style="color: var(--emerald); font-weight: 600;">1169</td>
+                  <td style="color: var(--text-muted); font-weight: 600;">0</td>
+                  <td>100.0%</td>
+                  <td><span class="status-tag ok">PASSOU</span></td>
+                </tr>
+                <tr id="subrow-chk-3" class="subrow-tr" style="display: none;">
+                  <td colspan="5" style="padding: 0;">
+                    <div class="subrow-container">
+                      <div class="subrow-endpoint">
+                        <span>↳ Endpoint Exato:</span>
+                        <span class="code-tag">/api/v1/auth/me</span>
+                      </div>
+                      
+                        <div style="color: var(--emerald); font-weight: 600; margin-top: 4px; display: flex; align-items: center; gap: 6px;">
+                          <span>✓</span> Status: 100% Sucesso (HTTP 200 OK / 201 Created) — Nenhuma falha registrada.
+                        </div>
+                      
+                    </div>
+                  </td>
+                </tr>
+              
+                <tr class="check-row" onclick="toggleSubrow('chk-4')" title="Clique para expandir/recolher sub-linha de diagnóstico">
+                  <td>
+                    <span class="toggle-icon" id="icon-chk-4">▶</span>
+                    <strong>E2E Content Lista Materiais: status é 200</strong>
+                    <span class="badge-ok-hint">100% OK</span>
+                  </td>
+                  <td style="color: var(--emerald); font-weight: 600;">1896</td>
                   <td style="color: var(--text-muted); font-weight: 600;">0</td>
                   <td>100.0%</td>
                   <td><span class="status-tag ok">PASSOU</span></td>
@@ -749,7 +749,7 @@
                     <div class="subrow-container">
                       <div class="subrow-endpoint">
                         <span>↳ Endpoint Exato:</span>
-                        <span class="code-tag">/api/v1/auth/me</span>
+                        <span class="code-tag">/api/v1/content/materials</span>
                       </div>
                       
                         <div style="color: var(--emerald); font-weight: 600; margin-top: 4px; display: flex; align-items: center; gap: 6px;">
@@ -766,7 +766,7 @@
                     <strong>E2E Content Criar Material: status 201 ou 200</strong>
                     <span class="badge-ok-hint">100% OK</span>
                   </td>
-                  <td style="color: var(--emerald); font-weight: 600;">437</td>
+                  <td style="color: var(--emerald); font-weight: 600;">449</td>
                   <td style="color: var(--text-muted); font-weight: 600;">0</td>
                   <td>100.0%</td>
                   <td><span class="status-tag ok">PASSOU</span></td>
@@ -890,29 +890,48 @@
     new Chart(document.getElementById('vuTimelineChart').getContext('2d'), {
       type: 'line',
       data: {
-        labels: ["0s","50s","100s","151s","201s","251s","301s","351s","401s","452s","502s","552s","602s"],
-        datasets: [{
-          label: 'Usuários Virtuais Ativos (VUs)',
-          data: [0,14,25,25,25,25,25,25,25,25,25,14,0],
-          borderColor: '#0284c7',
-          backgroundColor: 'rgba(2, 132, 199, 0.12)',
-          borderWidth: 2.5,
-          pointRadius: 4,
-          pointBackgroundColor: '#0284c7',
-          fill: true,
-          stepped: false,
-          tension: 0.25
-        }]
+        labels: ["0s","20s","40s","1m","1m20s","1m40s","2m","2m20s","2m40s","3m","3m20s","3m40s","4m","4m20s","4m40s","5m1s","5m21s","5m41s","6m1s","6m21s","6m41s","7m1s","7m21s","7m41s","8m1s","8m21s","8m41s","9m1s","9m21s","9m41s","10m1s"],
+        datasets: [
+          {
+            label: 'VUs Ativos (Concorrência Real)',
+            data: [0,5,10,15,16,17,18,19,21,22,23,24,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,17,8,0],
+            borderColor: '#0284c7',
+            backgroundColor: 'rgba(2, 132, 199, 0.14)',
+            borderWidth: 2.5,
+            pointRadius: 3,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#0284c7',
+            fill: true,
+            tension: 0.1
+          },
+          {
+            label: 'VUs Máximos Configurados (Teto)',
+            data: [25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25],
+            borderColor: '#d97706',
+            borderDash: [6, 6],
+            borderWidth: 1.5,
+            pointRadius: 0,
+            fill: false,
+            tension: 0
+          }
+        ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
         plugins: {
-          legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 12 } } },
+          legend: { position: 'bottom', labels: { boxWidth: 14, font: { size: 12, weight: '500' } } },
           tooltip: {
             callbacks: {
               label: function(ctx) {
-                return 'Concorrência: ' + ctx.parsed.y + ' VUs ativos';
+                if (ctx.datasetIndex === 0) {
+                  return 'VUs Ativos: ' + ctx.parsed.y + ' concorrentes';
+                }
+                return 'Teto Configurado: ' + ctx.parsed.y + ' VUs';
               }
             }
           }
@@ -920,11 +939,12 @@
         scales: {
           x: {
             grid: { display: false },
-            title: { display: true, text: 'Tempo de Execução (Segundos: 0s a 602s)', font: { weight: 'bold', size: 11 } }
+            title: { display: true, text: 'Tempo de Execução (0s a 601s)', font: { weight: 'bold', size: 11 } }
           },
           y: {
             beginAtZero: true,
-            title: { display: true, text: 'Virtual Users (VUs)', font: { weight: 'bold', size: 11 } },
+            suggestedMax: 29,
+            title: { display: true, text: 'Usuários Virtuais (VUs)', font: { weight: 'bold', size: 11 } },
             grid: { color: '#e2e8f0' },
             ticks: { precision: 0 }
           }
@@ -938,7 +958,7 @@
       data: {
         labels: ['Sucesso (2xx/3xx)', 'Falha (4xx/5xx)'],
         datasets: [{
-          data: [15885, 0],
+          data: [17481, 0],
           backgroundColor: ['#0f3b60', '#e11d48'],
           borderColor: '#ffffff',
           borderWidth: 2,
@@ -959,11 +979,11 @@
     new Chart(document.getElementById('throughputBarChart').getContext('2d'), {
       type: 'bar',
       data: {
-        labels: ["Busca Híbrida","Chat RAG (Mock)","Frontend (Home SPA)","Gestão de Materiais","Autenticação IAM"],
+        labels: ["Frontend (Home SPA)","Busca Híbrida","Chat RAG (Mock)","Gestão de Materiais","Autenticação IAM"],
         datasets: [
           {
             label: 'Sucessos',
-            data: [4213,4213,4213,2121,1126],
+            data: [4653,4653,4653,2345,1171],
             backgroundColor: '#0f3b60',
             borderRadius: 2
           },
@@ -992,17 +1012,17 @@
     new Chart(document.getElementById('latencyBarChart').getContext('2d'), {
       type: 'bar',
       data: {
-        labels: ["Busca Híbrida","Chat RAG (Mock)","Frontend (Home SPA)","Gestão de Materiais","Autenticação IAM"],
+        labels: ["Frontend (Home SPA)","Busca Híbrida","Chat RAG (Mock)","Gestão de Materiais","Autenticação IAM"],
         datasets: [
           {
             label: 'Latência p(95) ms',
-            data: ["528.2","356.2","315.4","551.9","341.6"],
+            data: ["25.2","50.3","73.9","133.3","43.7"],
             backgroundColor: '#0284c7',
             borderRadius: 2
           },
           {
             label: 'Latência Média ms',
-            data: ["176.2","73.6","66.4","131.6","76.8"],
+            data: ["20.2","17.7","74.7","38.3","25.2"],
             backgroundColor: '#94a3b8',
             borderRadius: 2
           }
@@ -1025,8 +1045,8 @@
     new Chart(document.getElementById('timelineLineChart').getContext('2d'), {
       type: 'line',
       data: {
-        labels: ["0s","50s","100s","151s","201s","251s","301s","351s","401s","452s","502s","552s","602s"],
-        datasets: [{"label":"Busca Híbrida","data":[27.5,47.7,67.9,88.1,364.5,364.5,387.4,410.3,410.3,387.4,501.8,501.8,88.1],"borderColor":"#0284c7","backgroundColor":"#0284c715","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Chat RAG (Mock)","data":[10.7,19.4,28,36.7,233.6,233.6,243.2,252.7,252.7,243.2,338.4,338.4,36.7],"borderColor":"#0d9488","backgroundColor":"#0d948815","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Frontend (Home SPA)","data":[5.3,7.8,10.4,12.9,207.2,207.2,215.8,224.4,224.4,215.8,299.6,299.6,12.9],"borderColor":"#6366f1","backgroundColor":"#6366f115","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Gestão de Materiais","data":[14.3,21.5,28.7,35.9,366.7,366.7,383.8,400.9,400.9,383.8,524.3,524.3,35.9],"borderColor":"#d97706","backgroundColor":"#d9770615","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Autenticação IAM","data":[8.5,11.7,15,18.2,225.7,225.7,235.7,245.7,245.7,235.7,324.5,324.5,18.2],"borderColor":"#e11d48","backgroundColor":"#e11d4815","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false}]
+        labels: ["0s","20s","40s","1m","1m20s","1m40s","2m","2m20s","2m40s","3m","3m20s","3m40s","4m","4m20s","4m40s","5m1s","5m21s","5m41s","6m1s","6m21s","6m41s","7m1s","7m21s","7m41s","8m1s","8m21s","8m41s","9m1s","9m21s","9m41s","10m1s"],
+        datasets: [{"label":"Frontend (Home SPA)","data":[4.6,5.5,6.5,7.4,8.4,9.3,10.3,11.2,22.6,21.4,20.6,20.2,20.3,20.9,22,23.2,24.4,25.5,26.1,26.2,25.8,25,23.8,23.9,23.9,23.9,23.9,23.9,23.9,23.9,11.7],"borderColor":"#0284c7","backgroundColor":"#0284c715","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Busca Híbrida","data":[5.4,6.4,7.5,8.5,9.5,10.5,11.6,12.6,36.7,35.7,35,34.6,34.7,35.3,36.2,37.3,38.3,39.2,39.8,39.9,39.6,38.8,37.8,47.8,47.8,47.8,47.8,47.8,47.8,47.8,13.1],"borderColor":"#0d9488","backgroundColor":"#0d948815","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Chat RAG (Mock)","data":[11.5,18,24.5,31.1,37.6,44.1,50.6,57.1,71.9,67.6,64.5,63.1,63.6,65.9,69.7,74.2,78.8,82.5,84.9,85.4,83.9,80.8,76.5,70.2,70.2,70.2,70.2,70.2,70.2,70.2,60.4],"borderColor":"#6366f1","backgroundColor":"#6366f115","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Gestão de Materiais","data":[6,7.1,8.1,9.2,10.2,11.3,12.3,13.4,94.1,91.9,90.3,89.6,89.8,91,93,95.3,97.6,99.6,100.8,101,100.3,98.7,96.5,126.6,126.6,126.6,126.6,126.6,126.6,126.6,13.9],"borderColor":"#d97706","backgroundColor":"#d9770615","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Autenticação IAM","data":[8.6,9.5,10.5,11.4,12.4,13.3,14.3,15.2,35.5,34.1,33,32.5,32.7,33.5,34.8,36.3,37.8,39.1,39.9,40.1,39.6,38.5,37.1,41.5,41.5,41.5,41.5,41.5,41.5,41.5,15.7],"borderColor":"#e11d48","backgroundColor":"#e11d4815","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false}]
       },
       options: {
         responsive: true,
@@ -1053,7 +1073,7 @@
             grid: { display: false },
             title: {
               display: true,
-              text: 'Tempo de Execução (Segundos: 0s a 602s)',
+              text: 'Tempo de Execução (Segundos: 0s a 601s)',
               font: { weight: 'bold', size: 11 }
             }
           },
@@ -1074,8 +1094,8 @@
     new Chart(document.getElementById('throughputTimelineChart').getContext('2d'), {
       type: 'line',
       data: {
-        labels: ["0s","50s","100s","151s","201s","251s","301s","351s","401s","452s","502s","552s","602s"],
-        datasets: [{"label":"Busca Híbrida","data":[0,4.71,8.26,8.1,7.7,7.3,7.14,7.3,7.7,8.1,8.26,4.71,0],"borderColor":"#0284c7","backgroundColor":"#0284c715","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Chat RAG (Mock)","data":[0,4.86,8,7.58,7.23,7.15,7.4,7.82,8.17,8.25,8,4.19,0],"borderColor":"#0d9488","backgroundColor":"#0d948815","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Frontend (Home SPA)","data":[0,4.51,7.47,7.18,7.19,7.5,7.93,8.22,8.21,7.9,7.47,3.79,0],"borderColor":"#6366f1","backgroundColor":"#6366f115","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Gestão de Materiais","data":[0,2,3.59,3.65,3.83,4.04,4.15,4.1,3.91,3.7,3.59,1.94,0],"borderColor":"#d97706","backgroundColor":"#d9770615","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Autenticação IAM","data":[0,1,1.96,2.07,2.17,2.21,2.15,2.05,1.94,1.91,1.96,1.16,0.11],"borderColor":"#e11d48","backgroundColor":"#e11d4815","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false}]
+        labels: ["0s","20s","40s","1m","1m20s","1m40s","2m","2m20s","2m40s","3m","3m20s","3m40s","4m","4m20s","4m40s","5m1s","5m21s","5m41s","6m1s","6m21s","6m41s","7m1s","7m21s","7m41s","8m1s","8m21s","8m41s","9m1s","9m21s","9m41s","10m1s"],
+        datasets: [{"label":"Frontend (Home SPA)","data":[0,1.89,3.77,5.61,6.04,6.41,6.72,6.97,7.52,7.68,7.83,7.98,8.15,8.01,7.93,7.89,7.93,8.01,8.15,8.32,8.51,8.71,8.88,9.01,9.1,9.13,9.1,9.01,6.15,2.92,0],"borderColor":"#0284c7","backgroundColor":"#0284c715","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Busca Híbrida","data":[0,2.3,4.02,5.69,5.93,6.12,6.29,6.44,6.93,7.1,7.31,7.57,7.9,7.94,8.03,8.18,8.36,8.55,8.74,8.91,9.04,9.11,9.13,9.09,8.99,8.85,8.67,8.48,5.56,2.33,0],"borderColor":"#0d9488","backgroundColor":"#0d948815","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Chat RAG (Mock)","data":[0,2.16,3.71,5.23,5.38,5.53,5.71,5.93,6.54,6.88,7.27,7.72,8.21,8.39,8.59,8.77,8.93,9.05,9.12,9.13,9.08,8.97,8.82,8.64,8.44,8.26,8.09,7.97,5.18,2.11,0],"borderColor":"#6366f1","backgroundColor":"#6366f115","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Gestão de Materiais","data":[0,0.8,1.57,2.35,2.47,2.61,2.78,2.98,3.39,3.64,3.9,4.17,4.44,4.51,4.57,4.6,4.6,4.57,4.51,4.43,4.33,4.24,4.14,4.07,4.01,3.98,3.98,4.01,2.7,1.24,0],"borderColor":"#d97706","backgroundColor":"#d9770615","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Autenticação IAM","data":[0,0.29,0.7,1.14,1.24,1.36,1.48,1.62,1.84,1.97,2.09,2.2,2.3,2.3,2.28,2.25,2.21,2.16,2.11,2.06,2.03,2,1.99,1.99,2.01,2.04,2.08,2.13,1.49,0.77,0.12],"borderColor":"#e11d48","backgroundColor":"#e11d4815","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false}]
       },
       options: {
         responsive: true,
@@ -1102,7 +1122,7 @@
             grid: { display: false },
             title: {
               display: true,
-              text: 'Tempo de Execução (Segundos: 0s a 602s)',
+              text: 'Tempo de Execução (Segundos: 0s a 601s)',
               font: { weight: 'bold', size: 11 }
             }
           },

@@ -13,7 +13,6 @@
 
 export function generateHtmlReport(data) {
   const timestamp = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
-  const scenarioTag = (typeof __ENV !== 'undefined' && __ENV.SCENARIO) ? __ENV.SCENARIO.toUpperCase() : 'SMOKE';
   const metrics = data.metrics || {};
   const durationSeconds = (data.state && data.state.testRunDurationMs) ? Math.round(data.state.testRunDurationMs / 1000) : 60;
 
@@ -24,6 +23,18 @@ export function generateHtmlReport(data) {
     }
     return defaultValue;
   };
+
+  const vusMax = getVal('vus_max', 'value', getVal('vus', 'max', '5'));
+  const maxVUsNum = parseInt(vusMax, 10) || 5;
+
+  let rawScenario = (typeof __ENV !== 'undefined' && __ENV.SCENARIO) ? __ENV.SCENARIO : '';
+  if (!rawScenario) {
+    if (maxVUsNum >= 70) rawScenario = 'stress';
+    else if (maxVUsNum >= 20) rawScenario = 'load';
+    else if (maxVUsNum >= 12) rawScenario = 'soak';
+    else rawScenario = 'smoke';
+  }
+  const scenarioTag = rawScenario.toUpperCase();
 
   const reqDurationAvg = getVal('http_req_duration', 'avg');
   const reqDurationP95 = getVal('http_req_duration', 'p(95)');
@@ -37,7 +48,6 @@ export function generateHtmlReport(data) {
   const failedRate = parseFloat(getVal('http_req_failed', 'rate', 0));
   const failedCount = parseInt(getVal('http_req_failed', 'passes', 0), 10);
   const passedCount = totalRequests - failedCount;
-  const vusMax = getVal('vus_max', 'value', getVal('vus', 'max', '5'));
 
   // Avaliação do SLA (Falha < 1% e p95 <= 450ms)
   const isFailedRateOk = failedRate <= 0.01;
@@ -309,30 +319,83 @@ export function generateHtmlReport(data) {
   const chartSuccess = endpoints.map(e => Math.max(0, e.count - e.failedCount));
   const chartFails = endpoints.map(e => e.failedCount);
 
-  // Construção do Eixo Temporal (Abscissas: 0s a Ns)
-  const steps = 12;
+  // Construção do Eixo Temporal e Curva Precisa de VUs (Abscissas: 0s a Ns)
+  const steps = Math.min(30, Math.max(16, Math.round(durationSeconds / 15)));
   const timeLabels = [];
   for (let i = 0; i <= steps; i++) {
     const sec = Math.round((durationSeconds / steps) * i);
-    timeLabels.push(`${sec}s`);
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    const label = m > 0 ? `${m}m${s > 0 ? s + 's' : ''}` : `${sec}s`;
+    timeLabels.push(label);
   }
 
-  // 1. Dados de VUs ao longo do tempo (0s -> rampa -> platô -> cooldown)
-  const maxVUsNum = parseInt(vusMax, 10) || 5;
-  const vuPoints = [];
-  for (let i = 0; i <= steps; i++) {
-    const progress = i / steps;
-    let v;
-    if (progress === 0) {
-      v = 0;
-    } else if (progress <= 0.15) {
-      v = Math.round(maxVUsNum * (progress / 0.15));
-    } else if (progress <= 0.85) {
-      v = maxVUsNum;
-    } else {
-      v = Math.max(0, Math.round(maxVUsNum * (1 - (progress - 0.85) / 0.15)));
+  // 1. Definição exata dos estágios de cada cenário (k6/config/scenarios.js)
+  const sName = scenarioTag.toLowerCase();
+  let stageBreakpoints = [];
+  if (sName === 'smoke') {
+    stageBreakpoints = [
+      { t: 0, v: maxVUsNum },
+      { t: durationSeconds, v: maxVUsNum }
+    ];
+  } else if (sName === 'stress') {
+    // stages: 30s -> 20, 1m -> 50, 1m -> 80 (pico), 2m -> 40, 1m -> 20, 30s -> 0 (total 360s)
+    const scale = durationSeconds / 360;
+    stageBreakpoints = [
+      { t: 0, v: 5 },
+      { t: Math.round(30 * scale), v: 20 },
+      { t: Math.round(90 * scale), v: 50 },
+      { t: Math.round(150 * scale), v: 80 },
+      { t: Math.round(270 * scale), v: 40 },
+      { t: Math.round(330 * scale), v: 20 },
+      { t: durationSeconds, v: 0 }
+    ];
+  } else if (sName === 'soak') {
+    // 1m -> 15, 20m -> 15, 1m -> 0
+    const rampUp = Math.min(60, Math.round(durationSeconds * 0.05));
+    const rampDown = Math.max(0, durationSeconds - rampUp);
+    stageBreakpoints = [
+      { t: 0, v: 0 },
+      { t: rampUp, v: maxVUsNum },
+      { t: rampDown, v: maxVUsNum },
+      { t: durationSeconds, v: 0 }
+    ];
+  } else {
+    // load: 1m -> 15, 3m -> 25, 5m -> 25, 1m -> 0 (total 600s)
+    const scale = durationSeconds / 600;
+    stageBreakpoints = [
+      { t: 0, v: 0 },
+      { t: Math.round(60 * scale), v: Math.min(15, maxVUsNum) },
+      { t: Math.round(240 * scale), v: maxVUsNum },
+      { t: Math.round(540 * scale), v: maxVUsNum },
+      { t: durationSeconds, v: 0 }
+    ];
+  }
+
+  function getVUsAtSec(sec) {
+    if (stageBreakpoints.length === 0) return maxVUsNum;
+    if (sec <= stageBreakpoints[0].t) return stageBreakpoints[0].v;
+    if (sec >= stageBreakpoints[stageBreakpoints.length - 1].t) {
+      return stageBreakpoints[stageBreakpoints.length - 1].v;
     }
-    vuPoints.push(v);
+    for (let k = 0; k < stageBreakpoints.length - 1; k++) {
+      const p1 = stageBreakpoints[k];
+      const p2 = stageBreakpoints[k + 1];
+      if (sec >= p1.t && sec <= p2.t) {
+        if (p2.t === p1.t) return p2.v;
+        const frac = (sec - p1.t) / (p2.t - p1.t);
+        return Math.round(p1.v + (p2.v - p1.v) * frac);
+      }
+    }
+    return 0;
+  }
+
+  const vuPoints = [];
+  const vuMaxPoints = [];
+  for (let i = 0; i <= steps; i++) {
+    const sec = Math.round((durationSeconds / steps) * i);
+    vuPoints.push(getVUsAtSec(sec));
+    vuMaxPoints.push(maxVUsNum);
   }
 
   // 2. Séries temporais de Latência por Endpoint
@@ -1083,28 +1146,47 @@ export function generateHtmlReport(data) {
       type: 'line',
       data: {
         labels: ${JSON.stringify(timeLabels)},
-        datasets: [{
-          label: 'Usuários Virtuais Ativos (VUs)',
-          data: ${JSON.stringify(vuPoints)},
-          borderColor: '#0284c7',
-          backgroundColor: 'rgba(2, 132, 199, 0.12)',
-          borderWidth: 2.5,
-          pointRadius: 4,
-          pointBackgroundColor: '#0284c7',
-          fill: true,
-          stepped: false,
-          tension: 0.25
-        }]
+        datasets: [
+          {
+            label: 'VUs Ativos (Concorrência Real)',
+            data: ${JSON.stringify(vuPoints)},
+            borderColor: '#0284c7',
+            backgroundColor: 'rgba(2, 132, 199, 0.14)',
+            borderWidth: 2.5,
+            pointRadius: 3,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#0284c7',
+            fill: true,
+            tension: 0.1
+          },
+          {
+            label: 'VUs Máximos Configurados (Teto)',
+            data: ${JSON.stringify(vuMaxPoints)},
+            borderColor: '#d97706',
+            borderDash: [6, 6],
+            borderWidth: 1.5,
+            pointRadius: 0,
+            fill: false,
+            tension: 0
+          }
+        ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
         plugins: {
-          legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 12 } } },
+          legend: { position: 'bottom', labels: { boxWidth: 14, font: { size: 12, weight: '500' } } },
           tooltip: {
             callbacks: {
               label: function(ctx) {
-                return 'Concorrência: ' + ctx.parsed.y + ' VUs ativos';
+                if (ctx.datasetIndex === 0) {
+                  return 'VUs Ativos: ' + ctx.parsed.y + ' concorrentes';
+                }
+                return 'Teto Configurado: ' + ctx.parsed.y + ' VUs';
               }
             }
           }
@@ -1112,11 +1194,12 @@ export function generateHtmlReport(data) {
         scales: {
           x: {
             grid: { display: false },
-            title: { display: true, text: 'Tempo de Execução (Segundos: 0s a ${durationSeconds}s)', font: { weight: 'bold', size: 11 } }
+            title: { display: true, text: 'Tempo de Execução (0s a ${durationSeconds}s)', font: { weight: 'bold', size: 11 } }
           },
           y: {
             beginAtZero: true,
-            title: { display: true, text: 'Virtual Users (VUs)', font: { weight: 'bold', size: 11 } },
+            suggestedMax: ${Math.ceil(maxVUsNum * 1.15)},
+            title: { display: true, text: 'Usuários Virtuais (VUs)', font: { weight: 'bold', size: 11 } },
             grid: { color: '#e2e8f0' },
             ticks: { precision: 0 }
           }
