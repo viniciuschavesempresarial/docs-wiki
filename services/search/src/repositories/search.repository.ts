@@ -167,8 +167,6 @@ export class SearchRepository {
     values.push(params.limit);
     values.push(params.offset);
 
-    const result = await pool.query(sqlQuery, values);
-
     // Contagem total para paginação
     const countSql = `
       SELECT COUNT(*) as total
@@ -179,7 +177,12 @@ export class SearchRepository {
       (hasQuery ? 1 : 0) + (hasEmbedding ? 1 : 0),
       (hasQuery ? 1 : 0) + (hasEmbedding ? 1 : 0) + filters.length
     );
-    const countRes = await pool.query(countSql, countValues);
+
+    const [result, countRes] = await Promise.all([
+      pool.query(sqlQuery, values),
+      pool.query(countSql, countValues)
+    ]);
+
     const total = parseInt(countRes.rows[0]?.total || result.rows.length.toString(), 10);
 
     const mappedResults: SearchResultItem[] = result.rows.map((row) => ({

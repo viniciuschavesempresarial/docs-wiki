@@ -1,3 +1,4 @@
+import { UserResponse } from '@shared/contracts';
 import { UserEntity } from '../../types/index.js';
 
 export interface UserWithRoles extends UserEntity {
@@ -17,6 +18,7 @@ export interface IUserRepository {
   assignRole(userId: string, roleName: string): Promise<void>;
   updateRoles(userId: string, roleNames: string[]): Promise<void>;
   getUserRolesAndPermissions(userId: string): Promise<{ roles: string[]; permissions: string[] }>;
+  getUserWithRolesAndPermissions(userId: string): Promise<UserResponse | null>;
   deleteById(id: string): Promise<boolean>;
   listAll(): Promise<UserEntity[]>;
   listAllWithRoles(): Promise<UserWithRoles[]>;

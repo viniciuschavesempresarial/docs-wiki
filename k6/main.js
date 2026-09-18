@@ -1,4 +1,5 @@
 import userJourneyDefault, { setup as userJourneySetup } from './scenarios/05_e2e_user_journey.test.js';
+import { teardown as teardownCleanup } from './helpers/teardown.js';
 import { generateHtmlReport } from './helpers/reporter.js';
 import { getOptions } from './config/scenarios.js';
 
@@ -10,6 +11,10 @@ export function setup() {
 
 export default function (data) {
   userJourneyDefault(data);
+}
+
+export function teardown(data) {
+  teardownCleanup(data);
 }
 
 /**

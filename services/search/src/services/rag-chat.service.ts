@@ -7,7 +7,7 @@ export class RAGChatService {
   /**
    * Executa o chat RAG contextual estritamente aterrado aos documentos selecionados.
    */
-  public async executeChat(dto: ChatRequestDTO): Promise<ChatResponse> {
+  public async executeChat(dto: ChatRequestDTO, forceMock = false): Promise<ChatResponse> {
     const { query, material_ids } = dto;
 
     // 1. Gera embedding da query do usuário
@@ -35,7 +35,7 @@ export class RAGChatService {
     }));
 
     // 4. Invoca o modelo Gemini com temperatura 0.2
-    const answer = await geminiClient.generateGroundedChatResponse(query, contextItems);
+    const answer = await geminiClient.generateGroundedChatResponse(query, contextItems, forceMock);
 
     // 5. Mapeia fontes e citações
     const sources: ChatSourceCitation[] = relevantChunks.map((chunk) => ({

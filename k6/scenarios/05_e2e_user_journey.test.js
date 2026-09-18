@@ -1,6 +1,7 @@
 import { check, sleep } from 'k6';
 import { httpClient } from '../helpers/http_client.js';
 import { authenticate } from '../helpers/auth.js';
+import { teardown as teardownCleanup } from '../helpers/teardown.js';
 import { getOptions } from '../config/scenarios.js';
 
 const searchQueries = JSON.parse(open('../datasets/search_queries.json'));
@@ -18,6 +19,13 @@ export function setup() {
     totalQueries: searchQueries.length,
     totalDocs: sampleDocs.length,
   };
+}
+
+/**
+ * Teardown lifecycle: Limpa todo conteúdo e usuários criados durante o teste
+ */
+export function teardown(data) {
+  teardownCleanup(data);
 }
 
 /**

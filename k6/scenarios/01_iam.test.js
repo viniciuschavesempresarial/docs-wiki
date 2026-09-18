@@ -1,13 +1,23 @@
 import { check, sleep } from 'k6';
 import { httpClient } from '../helpers/http_client.js';
 import { authenticate } from '../helpers/auth.js';
+import { teardown as teardownCleanup } from '../helpers/teardown.js';
 import { getOptions } from '../config/scenarios.js';
 
 export const options = getOptions(__ENV.SCENARIO || 'smoke');
 
-export default function () {
-  // 1. Autenticação e Login
+export function setup() {
   const token = authenticate();
+  return { token };
+}
+
+export function teardown(data) {
+  teardownCleanup(data);
+}
+
+export default function (data) {
+  // 1. Autenticação e Login
+  const token = (data && data.token) || authenticate();
 
   if (token) {
     // 2. Consulta de Perfil do Usuário Autenticado (/api/v1/auth/me)

@@ -80,6 +80,20 @@ export class MockUserRepository implements IUserRepository {
     };
   }
 
+  async getUserWithRolesAndPermissions(userId: string) {
+    const user = this.users.get(userId);
+    if (!user) return null;
+
+    const { roles, permissions } = await this.getUserRolesAndPermissions(userId);
+    return {
+      id: user.id,
+      email: user.email,
+      nome: user.nome,
+      roles,
+      permissions
+    };
+  }
+
   async updateRoles(userId: string, roleNames: string[]): Promise<void> {
     this.userRoles.set(userId, new Set(roleNames));
   }

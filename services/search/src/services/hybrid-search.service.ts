@@ -7,7 +7,7 @@ export class HybridSearchService {
   /**
    * Executa a busca híbrida ponderada com suporte a filtros e sumarização via IA.
    */
-  public async executeSearch(params: SearchQueryDTO): Promise<SearchResponse> {
+  public async executeSearch(params: SearchQueryDTO, forceMock = false): Promise<SearchResponse> {
     const page = params.page || 1;
     const limit = params.limit || 10;
     const offset = (page - 1) * limit;
@@ -40,7 +40,7 @@ export class HybridSearchService {
       const contextChunks = await searchRepository.getChunksForMaterial(topMaterial.material_id, 4);
 
       if (contextChunks.length > 0) {
-        ai_summary = await geminiClient.summarizeSearchResults(params.q, contextChunks);
+        ai_summary = await geminiClient.summarizeSearchResults(params.q, contextChunks, forceMock);
       }
     }
 

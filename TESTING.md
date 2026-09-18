@@ -395,19 +395,31 @@ Após cada execução, o k6 gera automaticamente relatórios nomeados por cenár
   - Diagnóstico detalhado listando e quantificando todos os códigos de status HTTP (`HTTP 429`, `HTTP 500`, `HTTP 401`, `HTTP 404`, `HTTP 502`, `HTTP 504`) e seus respectivos endpoints exatos.
 
 #### B. Dashboard em Tempo Real no Grafana (Nó Local do Gerador de Carga)
-- Acesse exemplo:`http://localhost:3000/d/k6-load-testing` diretamente na sua máquina local / nó gerador de carga (Usuário: `admin` / Senha: `admin123`).
+- Acesse, por exemplo: `http://localhost:3000/d/k6-load-testing` diretamente na sua máquina local / nó gerador de carga (Usuário: `admin` / Senha: `admin123`).
 - O painel exibe a telemetria em tempo real consumida pelo Grafana a partir do VictoriaMetrics local (`http://localhost:8428`), incluindo VUs ativas (`k6_vus`), vazão RPS (`k6_http_reqs_total`), percentis de latência p(95) e p(99) (`k6_http_req_duration_p99`), taxa de falhas (`k6_http_req_failed_rate`) e distribuição de erros HTTP.
 
 ---
 
-### 7.8. Guia de Diagnóstico e Resolução de Problemas (Troubleshooting)
+### 7.8. Teardown Automatizado & Limpeza de Dados com CASCADE (`teardown.js`)
+Para garantir o isolamento e a sanidade do banco de dados em Staging e ambientes locais, todos os testes do k6 implementam o ciclo de vida **`teardown(data)`**:
+- **Limpeza de Conteúdo / Materiais em CASCADE**:
+  - Consulta os materiais criados durante o teste (prefixos `k6-`, tags `k6` ou slugs de teste).
+  - Executa a rota administrativa `POST /api/v1/content/materials/bulk-delete` com remoção em **CASCADE** atômica no PostgreSQL (materiais, histórico de versões Git-like, chunks semânticos e índices de busca vetorial) e emissão de eventos de expurgo para o RabbitMQ.
+- **Limpeza de Usuários Temporários do IAM**:
+  - Consulta e remove usuários temporários de teste cadastrados via `DELETE /api/v1/auth/users/:id`.
+  - **Salvaguarda de Segurança**: Usuários com `is_system_protected: true` (como o Super Admin padrão) são rigorosamente ignorados e protegidos contra qualquer tentativa de exclusão.
+
+---
+
+### 7.9. Guia de Diagnóstico e Resolução de Problemas (Troubleshooting)
 
 | Sintoma / Erro | Causa Provável | Ação Corretiva |
 | :--- | :--- | :--- |
 | **Erros `HTTP 429 Too Many Requests`** | O Nginx no ambiente de Staging (`homelab_nginx`) não recarregou a diretiva de bypass `X-K6-Secret` ou o token configurado é divergente. | Conecte na VM de staging, execute `git pull origin staging` e recarregue a configuração com: `docker exec homelab_nginx nginx -s reload`. |
 | **Falha no Nginx: `cannot load certificate /etc/nginx/certs/fullchain.pem`** | Certificados SSL autoassinados ausentes no volume do Nginx. | Na pasta do projeto na VM, execute:<br>`sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout certs/privkey.pem -out certs/fullchain.pem -subj "/CN=192.168.0.107"`<br>`sudo chmod 644 certs/fullchain.pem certs/privkey.pem`<br>`docker restart homelab_nginx` |
 | **Painel do Grafana com "No Data"** | O nó de monitoramento não está ativo na porta 8428 ou o k6 não enviou métricas via Remote Write. | Inicie o nó de monitoramento com: `docker compose -f docker-compose.monitoring.yml up -d` e verifique a saúde do VictoriaMetrics em `http://localhost:8428/health`. |
-| **Alerta de containers órfãos no Docker Compose** | Conflito de escopo de nome de projeto no Docker Compose. | O arquivo [docker-compose.k6.yml](file:///d:/Consultoria/books-tool/docker-compose.k6.yml) possui escopo fixo `name: docswiki-k6`, eliminando qualquer aviso de container órfão da aplicação principal. |
 | **Relatórios HTML com gráficos não renderizados** | Bloqueio de CDN externo em ambientes isolados (air-gapped). | O gerador embutido em [k6/helpers/reporter.js](file:///d:/Consultoria/books-tool/k6/helpers/reporter.js) utiliza Chart.js com fallback resiliente e ícones/favicon vetoriais em SVG 100% embutidos inline. |
+
+
 
 

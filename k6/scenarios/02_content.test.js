@@ -1,6 +1,7 @@
 import { check, sleep } from 'k6';
 import { httpClient } from '../helpers/http_client.js';
 import { authenticate } from '../helpers/auth.js';
+import { teardown as teardownCleanup } from '../helpers/teardown.js';
 import { getOptions } from '../config/scenarios.js';
 
 const sampleDocs = JSON.parse(open('../datasets/sample_documents.json'));
@@ -10,6 +11,10 @@ export const options = getOptions(__ENV.SCENARIO || 'smoke');
 export function setup() {
   const token = authenticate();
   return { token };
+}
+
+export function teardown(data) {
+  teardownCleanup(data);
 }
 
 export default function (data) {

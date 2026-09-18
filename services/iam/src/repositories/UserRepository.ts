@@ -119,6 +119,26 @@ export class UserRepository implements IUserRepository {
     return { roles, permissions };
   }
 
+  async getUserWithRolesAndPermissions(userId: string): Promise<any | null> {
+    const text = `
+      SELECT 
+        u.id, 
+        u.email, 
+        u.nome, 
+        COALESCE(array_agg(DISTINCT r.nome) FILTER (WHERE r.nome IS NOT NULL), '{}') AS roles,
+        COALESCE(array_agg(DISTINCT p.slug) FILTER (WHERE p.slug IS NOT NULL), '{}') AS permissions
+      FROM iam.users u
+      LEFT JOIN iam.user_roles ur ON ur.user_id = u.id
+      LEFT JOIN iam.roles r ON r.id = ur.role_id
+      LEFT JOIN iam.role_permissions rp ON rp.role_id = r.id
+      LEFT JOIN iam.permissions p ON p.id = rp.permission_id
+      WHERE u.id = $1
+      GROUP BY u.id
+    `;
+    const res = await this.db.query(text, [userId]);
+    return res.rows[0] || null;
+  }
+
   async deleteById(id: string): Promise<boolean> {
     const text = `
       DELETE FROM iam.users
