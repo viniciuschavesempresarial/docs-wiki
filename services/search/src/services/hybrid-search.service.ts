@@ -4,10 +4,35 @@ import { searchRepository } from '../repositories/search.repository.js';
 import { geminiClient } from '../gemini/gemini.client.js';
 
 export class HybridSearchService {
+  private readonly searchCache = new Map<string, { data: SearchResponse; expiresAt: number }>();
+  private readonly CACHE_TTL_MS = 15000; // 15 segundos de cache para absorver rajadas
+  private readonly MAX_CACHE_ENTRIES = 500;
+
+  private getCacheKey(params: SearchQueryDTO, forceMock: boolean): string {
+    return JSON.stringify({ ...params, forceMock });
+  }
+
+  private setCache(key: string, data: SearchResponse): void {
+    if (this.searchCache.size >= this.MAX_CACHE_ENTRIES) {
+      const firstKey = this.searchCache.keys().next().value;
+      if (firstKey) this.searchCache.delete(firstKey);
+    }
+    this.searchCache.set(key, {
+      data,
+      expiresAt: Date.now() + this.CACHE_TTL_MS
+    });
+  }
+
   /**
    * Executa a busca híbrida ponderada com suporte a filtros e sumarização via IA.
    */
   public async executeSearch(params: SearchQueryDTO, forceMock = false): Promise<SearchResponse> {
+    const cacheKey = this.getCacheKey(params, forceMock);
+    const cached = this.searchCache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) {
+      return cached.data;
+    }
+
     const page = params.page || 1;
     const limit = params.limit || 10;
     const offset = (page - 1) * limit;
@@ -44,13 +69,16 @@ export class HybridSearchService {
       }
     }
 
-    return {
+    const response: SearchResponse = {
       results,
       total,
       page,
       limit,
       ai_summary
     };
+
+    this.setCache(cacheKey, response);
+    return response;
   }
 }
 

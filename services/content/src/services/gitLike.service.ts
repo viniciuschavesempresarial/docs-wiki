@@ -4,6 +4,7 @@ import { parseOKF } from '../parser/okfParser.js';
 import { MaterialRepository } from '../repositories/material.repository.js';
 import { VersionRepository } from '../repositories/version.repository.js';
 import { RabbitMQEventPublisher } from '../queue/eventPublisher.js';
+import { invalidateMaterialsCache } from '../cache/materialCache.js';
 
 export class NotFoundError extends Error {
   public statusCode = 404;
@@ -101,9 +102,10 @@ export class GitLikeService {
       );
 
       await client.query('COMMIT');
+      invalidateMaterialsCache();
 
-      // Publicação assíncrona do evento no RabbitMQ
-      await RabbitMQEventPublisher.publishMaterialCriado({
+      // Publicação assíncrona desacoplada do ciclo HTTP
+      RabbitMQEventPublisher.publishMaterialCriado({
         event: 'material.criado',
         material_id: material.id,
         versao_num: 1,
@@ -116,6 +118,8 @@ export class GitLikeService {
         tags: frontmatter.tags || [],
         conteudo_okf: conteudoOkf,
         timestamp: new Date().toISOString()
+      }).catch((err) => {
+        console.error('[RabbitMQ] Falha assíncrona ao publicar evento material.criado:', err);
       });
 
       return {
@@ -188,9 +192,10 @@ export class GitLikeService {
       );
 
       await client.query('COMMIT');
+      invalidateMaterialsCache();
 
-      // Publicação do evento material.atualizado
-      await RabbitMQEventPublisher.publishMaterialAtualizado({
+      // Publicação assíncrona do evento material.atualizado
+      RabbitMQEventPublisher.publishMaterialAtualizado({
         event: 'material.atualizado',
         material_id: materialId,
         versao_num: nextVerNum,
@@ -203,6 +208,8 @@ export class GitLikeService {
         tags: frontmatter.tags || [],
         conteudo_okf: conteudoOkf,
         timestamp: new Date().toISOString()
+      }).catch((err) => {
+        console.error('[RabbitMQ] Falha assíncrona ao publicar evento material.atualizado:', err);
       });
 
       return {
@@ -279,9 +286,10 @@ export class GitLikeService {
       );
 
       await client.query('COMMIT');
+      invalidateMaterialsCache();
 
-      // Publicação do evento material.atualizado
-      await RabbitMQEventPublisher.publishMaterialAtualizado({
+      // Publicação assíncrona do evento material.atualizado
+      RabbitMQEventPublisher.publishMaterialAtualizado({
         event: 'material.atualizado',
         material_id: materialId,
         versao_num: nextVerNum,
@@ -294,6 +302,8 @@ export class GitLikeService {
         tags: frontmatter.tags || [],
         conteudo_okf: targetVersion.conteudo_okf,
         timestamp: new Date().toISOString()
+      }).catch((err) => {
+        console.error('[RabbitMQ] Falha assíncrona ao publicar evento material.atualizado no rollback:', err);
       });
 
       return {

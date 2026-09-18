@@ -3,6 +3,11 @@ import { MaterialRepository, MaterialFilters } from '../repositories/material.re
 import { VersionRepository } from '../repositories/version.repository.js';
 import { NotFoundError } from './gitLike.service.js';
 import { RabbitMQEventPublisher } from '../queue/eventPublisher.js';
+import {
+  getCachedMaterialsList,
+  setCachedMaterialsList,
+  invalidateMaterialsCache
+} from '../cache/materialCache.js';
 
 export interface MaterialDetailResponse {
   material: Material;
@@ -10,6 +15,10 @@ export interface MaterialDetailResponse {
 }
 
 export class MaterialService {
+  public static invalidateListCache(): void {
+    invalidateMaterialsCache();
+  }
+
   /**
    * Obtém detalhes de um material pelo ID, incluindo a versão HEAD
    */
@@ -51,10 +60,18 @@ export class MaterialService {
   }
 
   /**
-   * Lista materiais com paginação e filtros
+   * Lista materiais com paginação e filtros com cache em memória
    */
   public static async list(filters: MaterialFilters = {}): Promise<{ materials: Material[]; total: number }> {
-    return MaterialRepository.findAll(filters);
+    const cacheKey = JSON.stringify(filters);
+    const cached = getCachedMaterialsList(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    const result = await MaterialRepository.findAll(filters);
+    setCachedMaterialsList(cacheKey, result);
+    return result;
   }
 
   /**
@@ -97,10 +114,13 @@ export class MaterialService {
 
     const deleted = await MaterialRepository.delete(id);
     if (deleted) {
-      await RabbitMQEventPublisher.publishMaterialExcluido({
+      MaterialService.invalidateListCache();
+      RabbitMQEventPublisher.publishMaterialExcluido({
         event: 'material.excluido',
         material_id: id,
         timestamp: new Date().toISOString()
+      }).catch((err) => {
+        console.error('[RabbitMQ] Falha assíncrona ao publicar evento material.excluido:', err);
       });
     }
 
@@ -112,11 +132,14 @@ export class MaterialService {
    */
   public static async bulkDelete(ids: string[]): Promise<{ count: number; deletedIds: string[] }> {
     const result = await MaterialRepository.deleteMany(ids);
+    MaterialService.invalidateListCache();
     for (const id of result.deletedIds) {
-      await RabbitMQEventPublisher.publishMaterialExcluido({
+      RabbitMQEventPublisher.publishMaterialExcluido({
         event: 'material.excluido',
         material_id: id,
         timestamp: new Date().toISOString()
+      }).catch((err) => {
+        console.error('[RabbitMQ] Falha assíncrona ao publicar evento material.excluido:', err);
       });
     }
     return result;
