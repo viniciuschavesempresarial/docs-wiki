@@ -19,6 +19,7 @@ export const CONFIG = {
     'Accept': 'application/json',
     'User-Agent': 'k6-load-runner/1.0',
     'X-K6-Test': 'true',
+    'X-K6-Secret': __ENV.K6_BYPASS_SECRET || 'docswiki_k6_loadtest_bypass_secret_2026',
   },
 
   // URLs de Observabilidade

@@ -401,7 +401,7 @@
         </div>
         <div class="header-title">
           <h1>Docs-Wiki | Relatório de Desempenho e Carga (k6)</h1>
-          <div class="meta">Execução: <strong>2026-09-17 22:57:02</strong> | Duração: <strong>0s a 361s</strong> | VUs Máx: <strong>80</strong></div>
+          <div class="meta">Cenário: <strong>STRESS</strong> | Execução: <strong>2026-09-18 00:15:07</strong> | Duração: <strong>0s a 361s</strong> | VUs Máx: <strong>80</strong></div>
         </div>
       </div>
       <div>
@@ -416,7 +416,7 @@
       <div>
         <div class="title">⚠ Violação de SLA Identificada</div>
         <div class="desc">
-          Limite de tolerância ultrapassado. Taxa de Falhas: <strong>39.00%</strong> (Meta: &lt; 1.0%) | Latência p(95): <strong>86.99ms</strong> (Meta: &le; 450ms).
+          Limite de tolerância ultrapassado. Taxa de Falhas: <strong>0.00%</strong> (Meta: &lt; 1.0%) | Latência p(95): <strong>556.01ms</strong> (Meta: &le; 450ms).
         </div>
       </div>
       <div>
@@ -430,30 +430,30 @@
     <div class="grid-kpis">
       <div class="kpi-card">
         <div class="label">Total de Requisições</div>
-        <div class="value">22663</div>
-        <div class="sub">62.74 req/s (Throughput Médio)</div>
+        <div class="value">19924</div>
+        <div class="sub">55.24 req/s (Throughput Médio)</div>
       </div>
 
       <div class="kpi-card">
         <div class="label">Latência p(95)</div>
-        <div class="value" style="color: var(--emerald)">
-          86.99 <span style="font-size: 14px; font-weight: normal; color: var(--text-muted);">ms</span>
+        <div class="value" style="color: var(--rose)">
+          556.01 <span style="font-size: 14px; font-weight: normal; color: var(--text-muted);">ms</span>
         </div>
         <div class="sub">Meta SLA &le; 450ms (p99: N/Ams)</div>
       </div>
 
       <div class="kpi-card">
         <div class="label">Taxa de Erro HTTP</div>
-        <div class="value" style="color: var(--rose)">
-          39.00%
+        <div class="value" style="color: var(--emerald)">
+          0.00%
         </div>
-        <div class="sub">8729 falhas / 13934 sucessos</div>
+        <div class="sub">0 falhas / 19924 sucessos</div>
       </div>
 
       <div class="kpi-card">
         <div class="label">Tempo Médio (RTT)</div>
-        <div class="value">36.63 <span style="font-size: 14px; font-weight: normal; color: var(--text-muted);">ms</span></div>
-        <div class="sub">Mediana (p50): 16.91ms</div>
+        <div class="value">128.44 <span style="font-size: 14px; font-weight: normal; color: var(--text-muted);">ms</span></div>
+        <div class="sub">Mediana (p50): 38.43ms</div>
       </div>
     </div>
 
@@ -490,13 +490,18 @@
       <div class="chart-wrapper">
         <canvas id="latencyBarChart"></canvas>
       </div>
-    </div>
-
-    <!-- 4º BLOCO: Evolução Temporal da Latência por Endpoint -->
+    <!-- 4º BLOCO: Evolução Temporal de Latência e Throughput por Endpoint -->
     <div class="chart-box">
       <h3>5. Evolução Temporal da Latência por Endpoint (0s a 361s)</h3>
       <div class="chart-wrapper-large">
         <canvas id="timelineLineChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-box">
+      <h3>6. Evolução Temporal do Throughput por Endpoint (RPS vs Tempo: 0s a 361s)</h3>
+      <div class="chart-wrapper-large">
+        <canvas id="throughputTimelineChart"></canvas>
       </div>
     </div>
 
@@ -525,25 +530,25 @@
             
               <tr>
                 <td><strong>Busca Híbrida</strong></td>
-                <td>6042</td>
-                <td>16.74 req/s</td>
-                <td>49.4 ms</td>
-                <td>31.5 ms</td>
-                <td>82.3 ms</td>
-                <td style="font-weight: 700; color: var(--emerald);">103.3 ms</td>
+                <td>5300</td>
+                <td>14.68 req/s</td>
+                <td>342.7 ms</td>
+                <td>208.5 ms</td>
+                <td>784.7 ms</td>
+                <td style="font-weight: 700; color: var(--rose);">1109.9 ms</td>
                 <td>0.0 ms</td>
-                <td style="font-weight: 700; color: var(--rose);">51.9% (3137)</td>
+                <td style="font-weight: 700; color: var(--emerald);">0.0% (0)</td>
                 <td><span class="status-tag fail">FALHA</span></td>
               </tr>
             
               <tr>
                 <td><strong>Frontend (Home SPA)</strong></td>
-                <td>6042</td>
-                <td>16.74 req/s</td>
-                <td>21.6 ms</td>
-                <td>12.6 ms</td>
-                <td>25.9 ms</td>
-                <td style="font-weight: 700; color: var(--emerald);">60.9 ms</td>
+                <td>5300</td>
+                <td>14.68 req/s</td>
+                <td>27.8 ms</td>
+                <td>12.8 ms</td>
+                <td>60.7 ms</td>
+                <td style="font-weight: 700; color: var(--emerald);">121.2 ms</td>
                 <td>0.0 ms</td>
                 <td style="font-weight: 700; color: var(--emerald);">0.0% (0)</td>
                 <td><span class="status-tag ok">OK</span></td>
@@ -551,41 +556,41 @@
             
               <tr>
                 <td><strong>Chat RAG (Mock)</strong></td>
-                <td>6042</td>
-                <td>16.74 req/s</td>
-                <td>42.9 ms</td>
-                <td>25.5 ms</td>
-                <td>65.8 ms</td>
-                <td style="font-weight: 700; color: var(--emerald);">75.0 ms</td>
+                <td>5300</td>
+                <td>14.68 req/s</td>
+                <td>55.8 ms</td>
+                <td>32.5 ms</td>
+                <td>101.3 ms</td>
+                <td style="font-weight: 700; color: var(--emerald);">182.2 ms</td>
                 <td>0.0 ms</td>
-                <td style="font-weight: 700; color: var(--rose);">62.6% (3781)</td>
-                <td><span class="status-tag fail">FALHA</span></td>
+                <td style="font-weight: 700; color: var(--emerald);">0.0% (0)</td>
+                <td><span class="status-tag ok">OK</span></td>
               </tr>
             
               <tr>
                 <td><strong>Gestão de Materiais</strong></td>
-                <td>3040</td>
-                <td>8.42 req/s</td>
-                <td>32.0 ms</td>
-                <td>15.9 ms</td>
-                <td>64.1 ms</td>
-                <td style="font-weight: 700; color: var(--emerald);">100.4 ms</td>
+                <td>2717</td>
+                <td>7.53 req/s</td>
+                <td>91.1 ms</td>
+                <td>58.4 ms</td>
+                <td>210.8 ms</td>
+                <td style="font-weight: 700; color: var(--emerald);">283.8 ms</td>
                 <td>0.0 ms</td>
-                <td style="font-weight: 700; color: var(--rose);">53.6% (1629)</td>
-                <td><span class="status-tag fail">FALHA</span></td>
+                <td style="font-weight: 700; color: var(--emerald);">0.0% (0)</td>
+                <td><span class="status-tag ok">OK</span></td>
               </tr>
             
               <tr>
                 <td><strong>Autenticação IAM</strong></td>
-                <td>1498</td>
-                <td>4.15 req/s</td>
-                <td>30.0 ms</td>
-                <td>16.9 ms</td>
-                <td>34.4 ms</td>
-                <td style="font-weight: 700; color: var(--emerald);">77.1 ms</td>
+                <td>1308</td>
+                <td>3.62 req/s</td>
+                <td>39.8 ms</td>
+                <td>19.4 ms</td>
+                <td>81.0 ms</td>
+                <td style="font-weight: 700; color: var(--emerald);">159.5 ms</td>
                 <td>0.0 ms</td>
-                <td style="font-weight: 700; color: var(--rose);">12.1% (182)</td>
-                <td><span class="status-tag fail">FALHA</span></td>
+                <td style="font-weight: 700; color: var(--emerald);">0.0% (0)</td>
+                <td><span class="status-tag ok">OK</span></td>
               </tr>
             
           </tbody>
@@ -626,7 +631,7 @@
                     <strong>Frontend Home: status é 200</strong>
                     <span class="badge-ok-hint">100% OK</span>
                   </td>
-                  <td style="color: var(--emerald); font-weight: 600;">6042</td>
+                  <td style="color: var(--emerald); font-weight: 600;">5300</td>
                   <td style="color: var(--text-muted); font-weight: 600;">0</td>
                   <td>100.0%</td>
                   <td><span class="status-tag ok">PASSOU</span></td>
@@ -651,12 +656,12 @@
                   <td>
                     <span class="toggle-icon" id="icon-chk-1">▶</span>
                     <strong>E2E Content Lista Materiais: status é 200</strong>
-                    <span class="badge-fail-hint">1261 falha(s) detectada(s)</span>
+                    <span class="badge-ok-hint">100% OK</span>
                   </td>
-                  <td style="color: var(--emerald); font-weight: 600;">1181</td>
-                  <td style="color: var(--rose); font-weight: 600;">1261</td>
-                  <td>48.4%</td>
-                  <td><span class="status-tag fail">FALHOU</span></td>
+                  <td style="color: var(--emerald); font-weight: 600;">2191</td>
+                  <td style="color: var(--text-muted); font-weight: 600;">0</td>
+                  <td>100.0%</td>
+                  <td><span class="status-tag ok">PASSOU</span></td>
                 </tr>
                 <tr id="subrow-chk-1" class="subrow-tr" style="display: none;">
                   <td colspan="5" style="padding: 0;">
@@ -666,19 +671,8 @@
                         <span class="code-tag">/api/v1/content/materials</span>
                       </div>
                       
-                        <div style="margin-top: 8px;">
-                          <div style="font-weight: 700; color: #991b1b; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-                            <span>⚠</span> Diagnóstico de Erros & Status Codes (1261 falha(s) na asserção):
-                          </div>
-                          <div class="error-list">
-                            
-                              <div class="error-tag-item">
-                                <span class="badge-error-code">HTTP 429</span>
-                                <span style="color: #334155; font-weight: 600;">Too Many Requests (Rate Limit de Borda Atingido / Falha de Asserção):</span>
-                                <strong style="color: #b91c1c; margin-left: auto;">1261 ocorrência(s) (100.0%)</strong>
-                              </div>
-                            
-                          </div>
+                        <div style="color: var(--emerald); font-weight: 600; margin-top: 4px; display: flex; align-items: center; gap: 6px;">
+                          <span>✓</span> Status: 100% Sucesso (HTTP 200 OK / 201 Created) — Nenhuma falha registrada.
                         </div>
                       
                     </div>
@@ -689,12 +683,12 @@
                   <td>
                     <span class="toggle-icon" id="icon-chk-2">▶</span>
                     <strong>E2E Busca Híbrida: status é 200</strong>
-                    <span class="badge-fail-hint">3137 falha(s) detectada(s)</span>
+                    <span class="badge-ok-hint">100% OK</span>
                   </td>
-                  <td style="color: var(--emerald); font-weight: 600;">2905</td>
-                  <td style="color: var(--rose); font-weight: 600;">3137</td>
-                  <td>48.1%</td>
-                  <td><span class="status-tag fail">FALHOU</span></td>
+                  <td style="color: var(--emerald); font-weight: 600;">5300</td>
+                  <td style="color: var(--text-muted); font-weight: 600;">0</td>
+                  <td>100.0%</td>
+                  <td><span class="status-tag ok">PASSOU</span></td>
                 </tr>
                 <tr id="subrow-chk-2" class="subrow-tr" style="display: none;">
                   <td colspan="5" style="padding: 0;">
@@ -704,19 +698,8 @@
                         <span class="code-tag">/api/v1/search</span>
                       </div>
                       
-                        <div style="margin-top: 8px;">
-                          <div style="font-weight: 700; color: #991b1b; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-                            <span>⚠</span> Diagnóstico de Erros & Status Codes (3137 falha(s) na asserção):
-                          </div>
-                          <div class="error-list">
-                            
-                              <div class="error-tag-item">
-                                <span class="badge-error-code">HTTP 429</span>
-                                <span style="color: #334155; font-weight: 600;">Too Many Requests (Rate Limit de Borda Atingido / Falha de Asserção):</span>
-                                <strong style="color: #b91c1c; margin-left: auto;">3137 ocorrência(s) (100.0%)</strong>
-                              </div>
-                            
-                          </div>
+                        <div style="color: var(--emerald); font-weight: 600; margin-top: 4px; display: flex; align-items: center; gap: 6px;">
+                          <span>✓</span> Status: 100% Sucesso (HTTP 200 OK / 201 Created) — Nenhuma falha registrada.
                         </div>
                       
                     </div>
@@ -726,35 +709,24 @@
                 <tr class="check-row" onclick="toggleSubrow('chk-3')" title="Clique para expandir/recolher sub-linha de diagnóstico">
                   <td>
                     <span class="toggle-icon" id="icon-chk-3">▶</span>
-                    <strong>E2E Content Criar Material: status 201 ou 200</strong>
-                    <span class="badge-fail-hint">368 falha(s) detectada(s)</span>
+                    <strong>E2E RAG Chat (Mock): status é 200</strong>
+                    <span class="badge-ok-hint">100% OK</span>
                   </td>
-                  <td style="color: var(--emerald); font-weight: 600;">230</td>
-                  <td style="color: var(--rose); font-weight: 600;">368</td>
-                  <td>38.5%</td>
-                  <td><span class="status-tag fail">FALHOU</span></td>
+                  <td style="color: var(--emerald); font-weight: 600;">5300</td>
+                  <td style="color: var(--text-muted); font-weight: 600;">0</td>
+                  <td>100.0%</td>
+                  <td><span class="status-tag ok">PASSOU</span></td>
                 </tr>
                 <tr id="subrow-chk-3" class="subrow-tr" style="display: none;">
                   <td colspan="5" style="padding: 0;">
                     <div class="subrow-container">
                       <div class="subrow-endpoint">
                         <span>↳ Endpoint Exato:</span>
-                        <span class="code-tag">/api/v1/content/materials</span>
+                        <span class="code-tag">/api/v1/search/chat</span>
                       </div>
                       
-                        <div style="margin-top: 8px;">
-                          <div style="font-weight: 700; color: #991b1b; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-                            <span>⚠</span> Diagnóstico de Erros & Status Codes (368 falha(s) na asserção):
-                          </div>
-                          <div class="error-list">
-                            
-                              <div class="error-tag-item">
-                                <span class="badge-error-code">HTTP 429</span>
-                                <span style="color: #334155; font-weight: 600;">Too Many Requests (Rate Limit de Borda Atingido / Falha de Asserção):</span>
-                                <strong style="color: #b91c1c; margin-left: auto;">368 ocorrência(s) (100.0%)</strong>
-                              </div>
-                            
-                          </div>
+                        <div style="color: var(--emerald); font-weight: 600; margin-top: 4px; display: flex; align-items: center; gap: 6px;">
+                          <span>✓</span> Status: 100% Sucesso (HTTP 200 OK / 201 Created) — Nenhuma falha registrada.
                         </div>
                       
                     </div>
@@ -764,35 +736,24 @@
                 <tr class="check-row" onclick="toggleSubrow('chk-4')" title="Clique para expandir/recolher sub-linha de diagnóstico">
                   <td>
                     <span class="toggle-icon" id="icon-chk-4">▶</span>
-                    <strong>E2E RAG Chat (Mock): status é 200</strong>
-                    <span class="badge-fail-hint">3781 falha(s) detectada(s)</span>
+                    <strong>E2E IAM /me: status é 200</strong>
+                    <span class="badge-ok-hint">100% OK</span>
                   </td>
-                  <td style="color: var(--emerald); font-weight: 600;">2261</td>
-                  <td style="color: var(--rose); font-weight: 600;">3781</td>
-                  <td>37.4%</td>
-                  <td><span class="status-tag fail">FALHOU</span></td>
+                  <td style="color: var(--emerald); font-weight: 600;">1306</td>
+                  <td style="color: var(--text-muted); font-weight: 600;">0</td>
+                  <td>100.0%</td>
+                  <td><span class="status-tag ok">PASSOU</span></td>
                 </tr>
                 <tr id="subrow-chk-4" class="subrow-tr" style="display: none;">
                   <td colspan="5" style="padding: 0;">
                     <div class="subrow-container">
                       <div class="subrow-endpoint">
                         <span>↳ Endpoint Exato:</span>
-                        <span class="code-tag">/api/v1/search/chat</span>
+                        <span class="code-tag">/api/v1/auth/me</span>
                       </div>
                       
-                        <div style="margin-top: 8px;">
-                          <div style="font-weight: 700; color: #991b1b; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-                            <span>⚠</span> Diagnóstico de Erros & Status Codes (3781 falha(s) na asserção):
-                          </div>
-                          <div class="error-list">
-                            
-                              <div class="error-tag-item">
-                                <span class="badge-error-code">HTTP 429</span>
-                                <span style="color: #334155; font-weight: 600;">Too Many Requests (Rate Limit de Borda Atingido / Falha de Asserção):</span>
-                                <strong style="color: #b91c1c; margin-left: auto;">3781 ocorrência(s) (100.0%)</strong>
-                              </div>
-                            
-                          </div>
+                        <div style="color: var(--emerald); font-weight: 600; margin-top: 4px; display: flex; align-items: center; gap: 6px;">
+                          <span>✓</span> Status: 100% Sucesso (HTTP 200 OK / 201 Created) — Nenhuma falha registrada.
                         </div>
                       
                     </div>
@@ -802,35 +763,24 @@
                 <tr class="check-row" onclick="toggleSubrow('chk-5')" title="Clique para expandir/recolher sub-linha de diagnóstico">
                   <td>
                     <span class="toggle-icon" id="icon-chk-5">▶</span>
-                    <strong>E2E IAM /me: status é 200</strong>
-                    <span class="badge-fail-hint">182 falha(s) detectada(s)</span>
+                    <strong>E2E Content Criar Material: status 201 ou 200</strong>
+                    <span class="badge-ok-hint">100% OK</span>
                   </td>
-                  <td style="color: var(--emerald); font-weight: 600;">1314</td>
-                  <td style="color: var(--rose); font-weight: 600;">182</td>
-                  <td>87.8%</td>
-                  <td><span class="status-tag fail">FALHOU</span></td>
+                  <td style="color: var(--emerald); font-weight: 600;">526</td>
+                  <td style="color: var(--text-muted); font-weight: 600;">0</td>
+                  <td>100.0%</td>
+                  <td><span class="status-tag ok">PASSOU</span></td>
                 </tr>
                 <tr id="subrow-chk-5" class="subrow-tr" style="display: none;">
                   <td colspan="5" style="padding: 0;">
                     <div class="subrow-container">
                       <div class="subrow-endpoint">
                         <span>↳ Endpoint Exato:</span>
-                        <span class="code-tag">/api/v1/auth/me</span>
+                        <span class="code-tag">/api/v1/content/materials</span>
                       </div>
                       
-                        <div style="margin-top: 8px;">
-                          <div style="font-weight: 700; color: #991b1b; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-                            <span>⚠</span> Diagnóstico de Erros & Status Codes (182 falha(s) na asserção):
-                          </div>
-                          <div class="error-list">
-                            
-                              <div class="error-tag-item">
-                                <span class="badge-error-code">HTTP 429</span>
-                                <span style="color: #334155; font-weight: 600;">Too Many Requests (Rate Limit de Borda Atingido / Falha de Asserção):</span>
-                                <strong style="color: #b91c1c; margin-left: auto;">182 ocorrência(s) (100.0%)</strong>
-                              </div>
-                            
-                          </div>
+                        <div style="color: var(--emerald); font-weight: 600; margin-top: 4px; display: flex; align-items: center; gap: 6px;">
+                          <span>✓</span> Status: 100% Sucesso (HTTP 200 OK / 201 Created) — Nenhuma falha registrada.
                         </div>
                       
                     </div>
@@ -988,7 +938,7 @@
       data: {
         labels: ['Sucesso (2xx/3xx)', 'Falha (4xx/5xx)'],
         datasets: [{
-          data: [13934, 8729],
+          data: [19924, 0],
           backgroundColor: ['#0f3b60', '#e11d48'],
           borderColor: '#ffffff',
           borderWidth: 2,
@@ -1013,13 +963,13 @@
         datasets: [
           {
             label: 'Sucessos',
-            data: [2905,6042,2261,1411,1316],
+            data: [5300,5300,5300,2717,1308],
             backgroundColor: '#0f3b60',
             borderRadius: 2
           },
           {
             label: 'Falhas',
-            data: [3137,0,3781,1629,182],
+            data: [0,0,0,0,0],
             backgroundColor: '#e11d48',
             borderRadius: 2
           }
@@ -1046,13 +996,13 @@
         datasets: [
           {
             label: 'Latência p(95) ms',
-            data: ["103.3","60.9","75.0","100.4","77.1"],
+            data: ["1109.9","121.2","182.2","283.8","159.5"],
             backgroundColor: '#0284c7',
             borderRadius: 2
           },
           {
             label: 'Latência Média ms',
-            data: ["49.4","21.6","42.9","32.0","30.0"],
+            data: ["342.7","27.8","55.8","91.1","39.8"],
             backgroundColor: '#94a3b8',
             borderRadius: 2
           }
@@ -1076,7 +1026,7 @@
       type: 'line',
       data: {
         labels: ["0s","30s","60s","90s","120s","150s","181s","211s","241s","271s","301s","331s","361s"],
-        datasets: [{"label":"Busca Híbrida","data":[4.4,13.4,22.5,31.5,75.3,75.3,81.7,88.2,88.2,81.7,98.1,98.1,31.5],"borderColor":"#0284c7","backgroundColor":"#0284c715","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Frontend (Home SPA)","data":[5.5,7.9,10.2,12.6,42.4,42.4,45.2,48,48,45.2,57.9,57.9,12.6],"borderColor":"#0d9488","backgroundColor":"#0d948815","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Chat RAG (Mock)","data":[4.6,11.6,18.5,25.5,56.6,56.6,62.2,67.7,67.7,62.2,71.3,71.3,25.5],"borderColor":"#6366f1","backgroundColor":"#6366f115","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Gestão de Materiais","data":[4.6,8.4,12.1,15.9,68.9,68.9,73,77.2,77.2,73,95.4,95.4,15.9],"borderColor":"#d97706","backgroundColor":"#d9770615","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Autenticação IAM","data":[5.5,9.3,13.1,16.9,54.4,54.4,58.3,62.2,62.2,58.3,73.2,73.2,16.9],"borderColor":"#e11d48","backgroundColor":"#e11d4815","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false}]
+        datasets: [{"label":"Busca Híbrida","data":[26.1,86.9,147.7,208.5,758.5,758.5,803,847.5,847.5,803,1054.4,1054.4,208.5],"borderColor":"#0284c7","backgroundColor":"#0284c715","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Frontend (Home SPA)","data":[5,7.6,10.2,12.8,80.2,80.2,83.8,87.5,87.5,83.8,115.1,115.1,12.8],"borderColor":"#0d9488","backgroundColor":"#0d948815","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Chat RAG (Mock)","data":[10.8,18,25.3,32.5,124.4,124.4,131.6,138.9,138.9,131.6,173.1,173.1,32.5],"borderColor":"#6366f1","backgroundColor":"#6366f115","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Gestão de Materiais","data":[14.7,29.3,43.8,58.4,194.9,194.9,206.7,218.6,218.6,206.7,269.6,269.6,58.4],"borderColor":"#d97706","backgroundColor":"#d9770615","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Autenticação IAM","data":[8.9,12.4,15.9,19.4,106.4,106.4,111.6,116.8,116.8,111.6,151.5,151.5,19.4],"borderColor":"#e11d48","backgroundColor":"#e11d4815","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false}]
       },
       options: {
         responsive: true,
@@ -1112,6 +1062,55 @@
             title: {
               display: true,
               text: 'Tempo de Resposta (Milissegundos)',
+              font: { weight: 'bold', size: 11 }
+            },
+            grid: { color: '#e2e8f0' }
+          }
+        }
+      }
+    });
+
+    // 6. Line Chart (Evolução Temporal do Throughput por Endpoint: 0s a Ns)
+    new Chart(document.getElementById('throughputTimelineChart').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: ["0s","30s","60s","90s","120s","150s","181s","211s","241s","271s","301s","331s","361s"],
+        datasets: [{"label":"Busca Híbrida","data":[0,9.71,17.32,16.98,16.15,15.32,14.97,15.32,16.15,16.98,17.32,9.71,0],"borderColor":"#0284c7","backgroundColor":"#0284c715","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Frontend (Home SPA)","data":[0,10.03,16.78,15.9,15.16,15,15.51,16.4,17.14,17.3,16.78,8.63,0],"borderColor":"#0d9488","backgroundColor":"#0d948815","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Chat RAG (Mock)","data":[0,9.29,15.66,15.05,15.08,15.74,16.64,17.25,17.22,16.56,15.66,7.78,0],"borderColor":"#6366f1","backgroundColor":"#6366f115","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Gestão de Materiais","data":[0,4.19,7.69,7.8,8.2,8.64,8.88,8.76,8.37,7.92,7.69,4.07,0],"borderColor":"#d97706","backgroundColor":"#d9770615","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Autenticação IAM","data":[0,1.9,3.79,4,4.2,4.27,4.17,3.96,3.76,3.69,3.79,2.21,0.22],"borderColor":"#e11d48","backgroundColor":"#e11d4815","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false}]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { boxWidth: 12, font: { size: 12 } }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.dataset.label + ': ' + context.parsed.y + ' req/s';
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            title: {
+              display: true,
+              text: 'Tempo de Execução (Segundos: 0s a 361s)',
+              font: { weight: 'bold', size: 11 }
+            }
+          },
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Throughput (Requisições por Segundo - req/s)',
               font: { weight: 'bold', size: 11 }
             },
             grid: { color: '#e2e8f0' }

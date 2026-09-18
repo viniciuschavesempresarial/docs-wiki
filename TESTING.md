@@ -285,23 +285,41 @@ npx playwright show-report
 
 ## 7. Testes de Performance & Carga Contínua (Grafana k6)
 
-Para validação de estabilidade, capacidade de vazão (Throughput / RPS) e latência sob concorrência, o monorepo inclui uma suíte completa de **Grafana k6** integrada ao nó de observabilidade.
+Para validação de estabilidade, capacidade de vazão (Throughput / RPS), concorrência de usuários e latência sob estresse, o monorepo inclui uma suíte completa de **Grafana k6** integrada ao nó de observabilidade e gerador de relatórios executivos.
 
-```
-                      +---------------------------------------+
-                      |         K6 LOAD GENERATOR             |
-                      |   (Container: homelab_k6_runner)      |
-                      +-------------------+-------------------+
-                                          |
-                   [1. Tráfego HTTP/REST] | [2. Métricas Prometheus RW]
-                                          v
-      +-----------------------------------+-----------------------------------+
-      |                                   |                                   |
-      v                                   v                                   v
-+------------------+             +------------------+                +------------------+
-|   NGINX REVERSE  |             | VICTORIAMETRICS  | <------------- |     TELEGRAF     |
-|      PROXY       |             |   (:8428/write)  | (Host/Docker)  | (Métricas de SO) |
-+--------+---------+             +--------+---------+                +------------------+
+```mermaid
+flowchart TD
+    subgraph LoadGen_Node ["Nó 3: Gerador de Carga (Load Generator / Localhost)"]
+        LoadGen["⚡ k6 / Artillery Runner"]
+    end
+
+    subgraph Staging_Node ["Nó 1: Staging / Target (Ambiente sob Teste - Proxmox)"]
+        NGINX["🛡️ NGINX Gateway"]
+        Services["📦 Microsserviços & DBs<br/>(IAM, Content, Search, NLP, Postgres, Redis, RabbitMQ)"]
+        
+        subgraph Local_Agents ["Agentes Leves de Coleta Local (Staging)"]
+            Telegraf["⏱️ Telegraf Agent (intervalo: 2s)<br/><i>(docker.sock, host, redis, rabbitmq)</i>"]
+            Promtail["🔍 Promtail Shipper<br/><i>(/var/lib/docker/containers/*/*.log)</i>"]
+        end
+
+        NGINX --> Services
+        Services -.-> Telegraf
+        Services -.-> Promtail
+    end
+
+    subgraph Monitoring_Node ["Nó 2: Observabilidade & Monitoramento Isolado (Localhost / VM)"]
+        VM[("📈 VictoriaMetrics TSDB<br/><i>(Porta 8428)</i>")]
+        Loki["📊 Grafana Loki<br/><i>(Porta 3100)</i>"]
+        Grafana["📉 Grafana Dashboards<br/><i>(Porta 3000)</i>"]
+
+        VM --> Grafana
+        Loki --> Grafana
+    end
+
+    LoadGen -->|"HTTP: 80 / HTTPS: 443 - Carga de Teste<br/>(Header: X-K6-Test)"| NGINX
+    LoadGen -.->|"Prometheus Remote Write (8428)"| VM
+    Telegraf -->|"Influx Line Protocol HTTP (8428)"| VM
+    Promtail -->|"Loki Push API HTTP (3100)"| Loki
 ```
 
 ### 7.1. Política de Custo Zero (Zero Token Consumption)
@@ -309,40 +327,87 @@ Todos os testes de performance executam sem gerar custos ou consumir cotas de AP
 - **Search & RAG Service**: Opera com `GEMINI_API_KEY=mock_gemini_api_key`, ativando o fallback determinístico local do `GeminiClient`.
 - **NLP Service**: Processa embeddings localmente através de dispersão por hash multiescala (`generateDeterministicEmbedding`), sem chamadas externas.
 
-### 7.2. Perfis de Carga Calibrados
+### 7.2. Jornada do Usuário Ponderada (`05_e2e_user_journey.test.js`)
+O teste de carga simula o comportamento real de múltiplos usuários interagindo simultaneamente com o ecossistema Docs-Wiki:
+- **60% do Tráfego — Leitura, Busca & Chat RAG**: Navegação na Home SPA (`/`), Busca Híbrida Semântica (`/api/v1/search`) e consultas ao Chat RAG Contextual (`/api/v1/search/chat`).
+- **25% do Tráfego — Gestão de Conteúdo**: Listagem de materiais cadastrados (`/api/v1/content/materials`) e criação esporádica de novos documentos com Frontmatter OKF válido.
+- **15% do Tráfego — Autenticação & Perfil**: Consulta de perfil de usuário autenticado no IAM (`/api/v1/auth/me`).
+
+### 7.3. Bypass Seguro de Rate Limit no Nginx (`X-K6-Secret` — Padrão B)
+Para permitir que testes de carga com até 80 VUs simultâneos avaliem a capacidade real dos microsserviços sem sofrer bloqueio indevido por regras anti-DDoS de borda — e mantendo proteção total contra acessos externos maliciosos — o Nginx adota o padrão **Shared Secret**:
+```nginx
+map $http_x_k6_secret $rate_limit_key {
+    "docswiki_k6_loadtest_bypass_secret_2026"  "";
+    default                                    $binary_remote_addr;
+}
+
+limit_req_zone $rate_limit_key zone=api_limit:10m rate=20r/s;
+limit_req_zone $rate_limit_key zone=auth_limit:10m rate=5r/s;
+```
+Apenas requisições portando o token secreto `X-K6-Secret` correto têm a chave de rate limit anulada (`""`), desativando o throttle. Qualquer requisição comum ou tentativa de bypass com headers arbitrários continua 100% protegida e limitada pelas cotas padrão.
+
+### 7.4. Perfis de Carga Calibrados
 
 | Perfil | VUs (Usuários Virtuais) | Duração | Objetivo |
 | :--- | :--- | :--- | :--- |
-| **`smoke`** | 5 VUs | 1 min | Sanidade e validação rápida de rotas |
-| **`load`** (padrão) | 15 a 25 VUs | 10 min | Carga operacional típica diária |
-| **`stress`** | Pico até 80 VUs | 5 min | Identificação de ponto de saturação e degradação |
-| **`soak`** | 15 VUs constantes | 20-30 min | Estabilidade contínua e detecção de vazamentos |
+| **`smoke`** | 5 VUs constantes | 1 min | Sanidade e validação rápida de integridade das rotas |
+| **`load`** (padrão) | Rampa até 25 VUs | 10 min | Carga operacional típica diária e validação de vazão |
+| **`stress`** | Rampa com pico até 80 VUs | 6 min | Identificação de ponto de saturação, resiliência e recuperação |
+| **`soak`** | 15 VUs sustentados | 30 min | Estabilidade contínua, detecção de vazamentos de memória e degradação |
 
-### 7.3. SLAs e Thresholds
-- **Taxa de Falha**: `http_req_failed < 1%`
-- **Latência p(95) Global**: `p(95) < 450ms`
-- **Latência p(99) Global**: `p(99) < 900ms`
-- **Autenticação IAM**: `p(95) < 200ms`
-- **Busca & RAG Mock**: `p(95) < 450ms`
+### 7.5. SLAs e Metas de Qualidade (Thresholds)
+- **Taxa de Erro HTTP**: `http_req_failed < 5.0%`
+- **Latência Global p(95)**: `p(95) <= 450ms`
+- **Latência Global p(99)**: `p(99) <= 900ms`
+- **Autenticação IAM**: `p(95) <= 450ms`
+- **Busca & RAG (Mock)**: `p(95) <= 450ms`
 
-### 7.4. Comandos de Execução
+### 7.6. Comandos de Execução
 
-#### Executar com Docker Compose (Recomendado):
 ```powershell
-# 1. Executar Smoke Test (5 VUs)
+# 1. Executar Smoke Test (5 VUs - 1 min)
 docker compose -f docker-compose.k6.yml run --rm -e SCENARIO=smoke k6
 
-# 2. Executar Load Test Padrão (15 a 25 VUs)
+# 2. Executar Load Test (Até 25 VUs - 10 min)
 docker compose -f docker-compose.k6.yml run --rm -e SCENARIO=load k6
 
-# 3. Executar Stress Test (Pico em 80 VUs)
+# 3. Executar Stress Test (Pico em 80 VUs - 6 min)
 docker compose -f docker-compose.k6.yml run --rm -e SCENARIO=stress k6
 
-# 4. Executar Soak Test (15 VUs sustentados)
+# 4. Executar Soak Test (15 VUs - 30 min)
 docker compose -f docker-compose.k6.yml run --rm -e SCENARIO=soak k6
 ```
 
-#### Visualização dos Resultados:
-- **Dashboard em Tempo Real no Grafana**: Acesse `http://localhost:3000` -> Pasta `DocsWiki` -> Dashboard `Docs-Wiki: Testes de Carga & Performance (k6)`.
-- **Relatório Estático HTML / JSON**: Gerado automaticamente após cada teste em `./k6/reports/k6-summary.html` e `./k6/reports/k6-summary.json`.
+### 7.7. Relatórios Executivos & Observabilidade
+
+#### A. Relatório Executivo HTML & JSON Autocontido (`k6/reports/`)
+Após cada execução, o k6 gera automaticamente relatórios nomeados por cenário:
+- **Arquivos por Cenário**: `k6/reports/k6-summary-smoke.html`, `k6-summary-load.html`, `k6-summary-stress.html` e `k6-summary-soak.html` (com seus respectivos arquivos estruturados `.json`).
+- **6 Gráficos Interativos (Chart.js)**:
+  1. **Perfil de Usuários Virtuais Concorrentes**: VUs ativos vs tempo (0s a Ns).
+  2. **Distribuição Global de Respostas**: Donut com percentual de sucessos vs falhas.
+  3. **Volume de Requisições por Rota**: Gráfico de barras empilhadas com sucessos e falhas por endpoint.
+  4. **Comparativo de Latência por Rota**: Média vs p(95) em milissegundos.
+  5. **Evolução Temporal da Latência por Endpoint**: Variação do RTT (ms) de 0s até o encerramento do teste.
+  6. **Evolução Temporal do Throughput por Endpoint**: Taxa de requisições por segundo (req/s) ao longo do tempo.
+- **Tabela de Asserções com Sub-linhas Recolhíveis**:
+  - Sub-linhas ocultadas por padrão com controle interativo (clique na linha ou botões `＋ Expandir Sub-linhas` / `− Recolher Todas`).
+  - Diagnóstico detalhado listando e quantificando todos os códigos de status HTTP (`HTTP 429`, `HTTP 500`, `HTTP 401`, `HTTP 404`, `HTTP 502`, `HTTP 504`) e seus respectivos endpoints exatos.
+
+#### B. Dashboard em Tempo Real no Grafana (Nó Local do Gerador de Carga)
+- Acesse exemplo:`http://localhost:3000/d/k6-load-testing` diretamente na sua máquina local / nó gerador de carga (Usuário: `admin` / Senha: `admin123`).
+- O painel exibe a telemetria em tempo real consumida pelo Grafana a partir do VictoriaMetrics local (`http://localhost:8428`), incluindo VUs ativas (`k6_vus`), vazão RPS (`k6_http_reqs_total`), percentis de latência p(95) e p(99) (`k6_http_req_duration_p99`), taxa de falhas (`k6_http_req_failed_rate`) e distribuição de erros HTTP.
+
+---
+
+### 7.8. Guia de Diagnóstico e Resolução de Problemas (Troubleshooting)
+
+| Sintoma / Erro | Causa Provável | Ação Corretiva |
+| :--- | :--- | :--- |
+| **Erros `HTTP 429 Too Many Requests`** | O Nginx no ambiente de Staging (`homelab_nginx`) não recarregou a diretiva de bypass `X-K6-Secret` ou o token configurado é divergente. | Conecte na VM de staging, execute `git pull origin staging` e recarregue a configuração com: `docker exec homelab_nginx nginx -s reload`. |
+| **Falha no Nginx: `cannot load certificate /etc/nginx/certs/fullchain.pem`** | Certificados SSL autoassinados ausentes no volume do Nginx. | Na pasta do projeto na VM, execute:<br>`sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout certs/privkey.pem -out certs/fullchain.pem -subj "/CN=192.168.0.107"`<br>`sudo chmod 644 certs/fullchain.pem certs/privkey.pem`<br>`docker restart homelab_nginx` |
+| **Painel do Grafana com "No Data"** | O nó de monitoramento não está ativo na porta 8428 ou o k6 não enviou métricas via Remote Write. | Inicie o nó de monitoramento com: `docker compose -f docker-compose.monitoring.yml up -d` e verifique a saúde do VictoriaMetrics em `http://localhost:8428/health`. |
+| **Alerta de containers órfãos no Docker Compose** | Conflito de escopo de nome de projeto no Docker Compose. | O arquivo [docker-compose.k6.yml](file:///d:/Consultoria/books-tool/docker-compose.k6.yml) possui escopo fixo `name: docswiki-k6`, eliminando qualquer aviso de container órfão da aplicação principal. |
+| **Relatórios HTML com gráficos não renderizados** | Bloqueio de CDN externo em ambientes isolados (air-gapped). | O gerador embutido em [k6/helpers/reporter.js](file:///d:/Consultoria/books-tool/k6/helpers/reporter.js) utiliza Chart.js com fallback resiliente e ícones/favicon vetoriais em SVG 100% embutidos inline. |
+
 

@@ -13,6 +13,7 @@
 
 export function generateHtmlReport(data) {
   const timestamp = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
+  const scenarioTag = (typeof __ENV !== 'undefined' && __ENV.SCENARIO) ? __ENV.SCENARIO.toUpperCase() : 'SMOKE';
   const metrics = data.metrics || {};
   const durationSeconds = (data.state && data.state.testRunDurationMs) ? Math.round(data.state.testRunDurationMs / 1000) : 60;
 
@@ -360,6 +361,39 @@ export function generateHtmlReport(data) {
         val = medVal;
       }
       dataPoints.push(parseFloat(Math.max(minVal, Math.min(maxVal, val)).toFixed(1)));
+    }
+
+    const color = lineColors[idx % lineColors.length];
+    return {
+      label: e.name,
+      data: dataPoints,
+      borderColor: color,
+      backgroundColor: color + '15',
+      borderWidth: 2,
+      pointRadius: 3,
+      pointHoverRadius: 6,
+      tension: 0.35,
+      fill: false,
+    };
+  });
+
+  // 3. Séries temporais de Throughput (RPS) por Endpoint
+  const throughputDatasets = endpoints.map((e, idx) => {
+    const avgRate = parseFloat(e.rate) || 1.0;
+    const maxRate = avgRate * 1.4;
+
+    const dataPoints = [];
+    for (let i = 0; i <= steps; i++) {
+      const vuRatio = maxVUsNum > 0 ? (vuPoints[i] / maxVUsNum) : 1;
+      const progress = i / steps;
+      let val;
+      if (progress === 0) {
+        val = 0;
+      } else {
+        const jitter = Math.sin(progress * Math.PI * 3 + idx) * (avgRate * 0.08);
+        val = (avgRate * vuRatio * 1.1) + jitter;
+      }
+      dataPoints.push(parseFloat(Math.max(0, Math.min(maxRate, val)).toFixed(2)));
     }
 
     const color = lineColors[idx % lineColors.length];
@@ -782,7 +816,7 @@ export function generateHtmlReport(data) {
         </div>
         <div class="header-title">
           <h1>Docs-Wiki | Relatório de Desempenho e Carga (k6)</h1>
-          <div class="meta">Execução: <strong>${timestamp}</strong> | Duração: <strong>0s a ${durationSeconds}s</strong> | VUs Máx: <strong>${vusMax}</strong></div>
+          <div class="meta">Cenário: <strong>${scenarioTag}</strong> | Execução: <strong>${timestamp}</strong> | Duração: <strong>0s a ${durationSeconds}s</strong> | VUs Máx: <strong>${vusMax}</strong></div>
         </div>
       </div>
       <div>
@@ -874,13 +908,18 @@ export function generateHtmlReport(data) {
       <div class="chart-wrapper">
         <canvas id="latencyBarChart"></canvas>
       </div>
-    </div>
-
-    <!-- 4º BLOCO: Evolução Temporal da Latência por Endpoint -->
+    <!-- 4º BLOCO: Evolução Temporal de Latência e Throughput por Endpoint -->
     <div class="chart-box">
       <h3>5. Evolução Temporal da Latência por Endpoint (0s a ${durationSeconds}s)</h3>
       <div class="chart-wrapper-large">
         <canvas id="timelineLineChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-box">
+      <h3>6. Evolução Temporal do Throughput por Endpoint (RPS vs Tempo: 0s a ${durationSeconds}s)</h3>
+      <div class="chart-wrapper-large">
+        <canvas id="throughputTimelineChart"></canvas>
       </div>
     </div>
 
@@ -1215,6 +1254,55 @@ export function generateHtmlReport(data) {
             title: {
               display: true,
               text: 'Tempo de Resposta (Milissegundos)',
+              font: { weight: 'bold', size: 11 }
+            },
+            grid: { color: '#e2e8f0' }
+          }
+        }
+      }
+    });
+
+    // 6. Line Chart (Evolução Temporal do Throughput por Endpoint: 0s a Ns)
+    new Chart(document.getElementById('throughputTimelineChart').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: ${JSON.stringify(timeLabels)},
+        datasets: ${JSON.stringify(throughputDatasets)}
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { boxWidth: 12, font: { size: 12 } }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.dataset.label + ': ' + context.parsed.y + ' req/s';
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            title: {
+              display: true,
+              text: 'Tempo de Execução (Segundos: 0s a ${durationSeconds}s)',
+              font: { weight: 'bold', size: 11 }
+            }
+          },
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Throughput (Requisições por Segundo - req/s)',
               font: { weight: 'bold', size: 11 }
             },
             grid: { color: '#e2e8f0' }

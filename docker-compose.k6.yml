@@ -5,6 +5,8 @@
 # - Alvo de Carga: VM Staging (https://192.168.0.107/)
 # - Observabilidade: VictoriaMetrics / Grafana / Loki locais (books_tool_monitoring_net)
 
+name: docswiki-k6
+
 services:
   k6:
     image: grafana/k6:latest
@@ -15,6 +17,7 @@ services:
       - SCENARIO=${SCENARIO:-smoke}
       - ADMIN_EMAIL=${ADMIN_INITIAL_EMAIL:-admin@docswiki.local}
       - ADMIN_PASSWORD=${ADMIN_INITIAL_PASSWORD:-123456}
+      - K6_BYPASS_SECRET=${K6_BYPASS_SECRET:-docswiki_k6_loadtest_bypass_secret_2026}
       - K6_PROMETHEUS_REMOTE_URL=http://host.docker.internal:8428/api/v1/write
       - K6_PROMETHEUS_RW_SERVER_URL=http://host.docker.internal:8428/api/v1/write
     volumes:
