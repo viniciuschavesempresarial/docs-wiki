@@ -401,7 +401,7 @@
         </div>
         <div class="header-title">
           <h1>Docs-Wiki | Relatório de Desempenho e Carga (k6)</h1>
-          <div class="meta">Cenário: <strong>SMOKE</strong> | Execução: <strong>2026-09-18 02:20:07</strong> | Duração: <strong>0s a 64s</strong> | VUs Máx: <strong>5</strong></div>
+          <div class="meta">Cenário: <strong>SMOKE</strong> | Execução: <strong>2026-09-18 03:04:03</strong> | Duração: <strong>0s a 64s</strong> | VUs Máx: <strong>5</strong></div>
         </div>
       </div>
       <div>
@@ -416,7 +416,7 @@
       <div>
         <div class="title">⚠ Violação de SLA Identificada</div>
         <div class="desc">
-          Limite de tolerância ultrapassado. Taxa de Falhas: <strong>0.00%</strong> (Meta: &lt; 1.0%) | Latência p(95): <strong>464.78ms</strong> (Meta: &le; 450ms).
+          Limite de tolerância ultrapassado. Taxa de Falhas: <strong>0.00%</strong> (Meta: &lt; 1.0%) | Latência p(95): <strong>485.68ms</strong> (Meta: &le; 450ms).
         </div>
       </div>
       <div>
@@ -430,16 +430,16 @@
     <div class="grid-kpis">
       <div class="kpi-card">
         <div class="label">Total de Requisições</div>
-        <div class="value">374</div>
-        <div class="sub">5.85 req/s (Throughput Médio)</div>
+        <div class="value">376</div>
+        <div class="sub">5.88 req/s (Throughput Médio)</div>
       </div>
 
       <div class="kpi-card">
         <div class="label">Latência p(95)</div>
         <div class="value" style="color: var(--rose)">
-          464.78 <span style="font-size: 14px; font-weight: normal; color: var(--text-muted);">ms</span>
+          485.68 <span style="font-size: 14px; font-weight: normal; color: var(--text-muted);">ms</span>
         </div>
-        <div class="sub">Meta SLA &le; 450ms (p99: N/Ams)</div>
+        <div class="sub">Meta SLA &le; 450ms (p99: 797.81ms)</div>
       </div>
 
       <div class="kpi-card">
@@ -447,13 +447,13 @@
         <div class="value" style="color: var(--emerald)">
           0.00%
         </div>
-        <div class="sub">0 falhas / 374 sucessos</div>
+        <div class="sub">0 falhas / 376 sucessos</div>
       </div>
 
       <div class="kpi-card">
         <div class="label">Tempo Médio (RTT)</div>
-        <div class="value">175.74 <span style="font-size: 14px; font-weight: normal; color: var(--text-muted);">ms</span></div>
-        <div class="sub">Mediana (p50): 76.24ms</div>
+        <div class="value">189.38 <span style="font-size: 14px; font-weight: normal; color: var(--text-muted);">ms</span></div>
+        <div class="sub">Mediana (p50): 107.40ms</div>
       </div>
     </div>
 
@@ -529,66 +529,66 @@
           <tbody>
             
               <tr>
-                <td><strong>Chat RAG (Mock)</strong></td>
-                <td>97</td>
-                <td>1.52 req/s</td>
-                <td>261.1 ms</td>
-                <td>324.3 ms</td>
-                <td>458.4 ms</td>
-                <td style="font-weight: 700; color: var(--rose);">495.0 ms</td>
-                <td>0.0 ms</td>
+                <td><strong>Busca Híbrida</strong></td>
+                <td>104</td>
+                <td>1.63 req/s</td>
+                <td>112.5 ms</td>
+                <td>28.6 ms</td>
+                <td>370.2 ms</td>
+                <td style="font-weight: 700; color: var(--rose);">470.5 ms</td>
+                <td>1051.2 ms</td>
                 <td style="font-weight: 700; color: var(--emerald);">0.0% (0)</td>
                 <td><span class="status-tag fail">FALHA</span></td>
               </tr>
             
               <tr>
-                <td><strong>Busca Híbrida</strong></td>
-                <td>97</td>
-                <td>1.52 req/s</td>
-                <td>115.8 ms</td>
-                <td>25.5 ms</td>
-                <td>434.1 ms</td>
-                <td style="font-weight: 700; color: var(--rose);">471.8 ms</td>
-                <td>0.0 ms</td>
+                <td><strong>Chat RAG (Mock)</strong></td>
+                <td>104</td>
+                <td>1.63 req/s</td>
+                <td>293.6 ms</td>
+                <td>345.3 ms</td>
+                <td>461.4 ms</td>
+                <td style="font-weight: 700; color: var(--rose);">488.9 ms</td>
+                <td>534.9 ms</td>
                 <td style="font-weight: 700; color: var(--emerald);">0.0% (0)</td>
                 <td><span class="status-tag fail">FALHA</span></td>
               </tr>
             
               <tr>
                 <td><strong>Frontend (Home SPA)</strong></td>
-                <td>97</td>
-                <td>1.52 req/s</td>
-                <td>129.0 ms</td>
-                <td>86.5 ms</td>
-                <td>342.8 ms</td>
-                <td style="font-weight: 700; color: var(--emerald);">369.0 ms</td>
-                <td>0.0 ms</td>
+                <td>104</td>
+                <td>1.63 req/s</td>
+                <td>154.1 ms</td>
+                <td>125.4 ms</td>
+                <td>345.6 ms</td>
+                <td style="font-weight: 700; color: var(--emerald);">387.5 ms</td>
+                <td>442.1 ms</td>
                 <td style="font-weight: 700; color: var(--emerald);">0.0% (0)</td>
                 <td><span class="status-tag ok">OK</span></td>
               </tr>
             
               <tr>
                 <td><strong>Gestão de Materiais</strong></td>
-                <td>57</td>
-                <td>0.89 req/s</td>
-                <td>192.9 ms</td>
-                <td>169.4 ms</td>
-                <td>415.5 ms</td>
-                <td style="font-weight: 700; color: var(--rose);">461.0 ms</td>
-                <td>0.0 ms</td>
+                <td>40</td>
+                <td>0.63 req/s</td>
+                <td>209.0 ms</td>
+                <td>139.5 ms</td>
+                <td>515.4 ms</td>
+                <td style="font-weight: 700; color: var(--rose);">664.8 ms</td>
+                <td>695.9 ms</td>
                 <td style="font-weight: 700; color: var(--emerald);">0.0% (0)</td>
                 <td><span class="status-tag fail">FALHA</span></td>
               </tr>
             
               <tr>
                 <td><strong>Autenticação IAM</strong></td>
-                <td>24</td>
-                <td>0.38 req/s</td>
-                <td>209.4 ms</td>
-                <td>257.8 ms</td>
-                <td>356.0 ms</td>
-                <td style="font-weight: 700; color: var(--emerald);">401.1 ms</td>
-                <td>0.0 ms</td>
+                <td>22</td>
+                <td>0.34 req/s</td>
+                <td>183.6 ms</td>
+                <td>144.1 ms</td>
+                <td>305.7 ms</td>
+                <td style="font-weight: 700; color: var(--emerald);">313.9 ms</td>
+                <td>899.9 ms</td>
                 <td style="font-weight: 700; color: var(--emerald);">0.0% (0)</td>
                 <td><span class="status-tag ok">OK</span></td>
               </tr>
@@ -631,7 +631,7 @@
                     <strong>Frontend Home: status é 200</strong>
                     <span class="badge-ok-hint">100% OK</span>
                   </td>
-                  <td style="color: var(--emerald); font-weight: 600;">97</td>
+                  <td style="color: var(--emerald); font-weight: 600;">104</td>
                   <td style="color: var(--text-muted); font-weight: 600;">0</td>
                   <td>100.0%</td>
                   <td><span class="status-tag ok">PASSOU</span></td>
@@ -658,7 +658,7 @@
                     <strong>E2E Content Lista Materiais: status é 200</strong>
                     <span class="badge-ok-hint">100% OK</span>
                   </td>
-                  <td style="color: var(--emerald); font-weight: 600;">46</td>
+                  <td style="color: var(--emerald); font-weight: 600;">32</td>
                   <td style="color: var(--text-muted); font-weight: 600;">0</td>
                   <td>100.0%</td>
                   <td><span class="status-tag ok">PASSOU</span></td>
@@ -685,7 +685,7 @@
                     <strong>E2E Busca Híbrida: status é 200</strong>
                     <span class="badge-ok-hint">100% OK</span>
                   </td>
-                  <td style="color: var(--emerald); font-weight: 600;">97</td>
+                  <td style="color: var(--emerald); font-weight: 600;">104</td>
                   <td style="color: var(--text-muted); font-weight: 600;">0</td>
                   <td>100.0%</td>
                   <td><span class="status-tag ok">PASSOU</span></td>
@@ -712,7 +712,7 @@
                     <strong>E2E RAG Chat (Mock): status é 200</strong>
                     <span class="badge-ok-hint">100% OK</span>
                   </td>
-                  <td style="color: var(--emerald); font-weight: 600;">97</td>
+                  <td style="color: var(--emerald); font-weight: 600;">104</td>
                   <td style="color: var(--text-muted); font-weight: 600;">0</td>
                   <td>100.0%</td>
                   <td><span class="status-tag ok">PASSOU</span></td>
@@ -736,10 +736,10 @@
                 <tr class="check-row" onclick="toggleSubrow('chk-4')" title="Clique para expandir/recolher sub-linha de diagnóstico">
                   <td>
                     <span class="toggle-icon" id="icon-chk-4">▶</span>
-                    <strong>E2E IAM /me: status é 200</strong>
+                    <strong>E2E Content Criar Material: status 201 ou 200</strong>
                     <span class="badge-ok-hint">100% OK</span>
                   </td>
-                  <td style="color: var(--emerald); font-weight: 600;">22</td>
+                  <td style="color: var(--emerald); font-weight: 600;">8</td>
                   <td style="color: var(--text-muted); font-weight: 600;">0</td>
                   <td>100.0%</td>
                   <td><span class="status-tag ok">PASSOU</span></td>
@@ -749,7 +749,7 @@
                     <div class="subrow-container">
                       <div class="subrow-endpoint">
                         <span>↳ Endpoint Exato:</span>
-                        <span class="code-tag">/api/v1/auth/me</span>
+                        <span class="code-tag">/api/v1/content/materials</span>
                       </div>
                       
                         <div style="color: var(--emerald); font-weight: 600; margin-top: 4px; display: flex; align-items: center; gap: 6px;">
@@ -763,10 +763,10 @@
                 <tr class="check-row" onclick="toggleSubrow('chk-5')" title="Clique para expandir/recolher sub-linha de diagnóstico">
                   <td>
                     <span class="toggle-icon" id="icon-chk-5">▶</span>
-                    <strong>E2E Content Criar Material: status 201 ou 200</strong>
+                    <strong>E2E IAM /me: status é 200</strong>
                     <span class="badge-ok-hint">100% OK</span>
                   </td>
-                  <td style="color: var(--emerald); font-weight: 600;">11</td>
+                  <td style="color: var(--emerald); font-weight: 600;">20</td>
                   <td style="color: var(--text-muted); font-weight: 600;">0</td>
                   <td>100.0%</td>
                   <td><span class="status-tag ok">PASSOU</span></td>
@@ -776,7 +776,7 @@
                     <div class="subrow-container">
                       <div class="subrow-endpoint">
                         <span>↳ Endpoint Exato:</span>
-                        <span class="code-tag">/api/v1/content/materials</span>
+                        <span class="code-tag">/api/v1/auth/me</span>
                       </div>
                       
                         <div style="color: var(--emerald); font-weight: 600; margin-top: 4px; display: flex; align-items: center; gap: 6px;">
@@ -938,7 +938,7 @@
       data: {
         labels: ['Sucesso (2xx/3xx)', 'Falha (4xx/5xx)'],
         datasets: [{
-          data: [374, 0],
+          data: [376, 0],
           backgroundColor: ['#0f3b60', '#e11d48'],
           borderColor: '#ffffff',
           borderWidth: 2,
@@ -959,11 +959,11 @@
     new Chart(document.getElementById('throughputBarChart').getContext('2d'), {
       type: 'bar',
       data: {
-        labels: ["Chat RAG (Mock)","Busca Híbrida","Frontend (Home SPA)","Gestão de Materiais","Autenticação IAM"],
+        labels: ["Busca Híbrida","Chat RAG (Mock)","Frontend (Home SPA)","Gestão de Materiais","Autenticação IAM"],
         datasets: [
           {
             label: 'Sucessos',
-            data: [97,97,97,57,24],
+            data: [104,104,104,40,22],
             backgroundColor: '#0f3b60',
             borderRadius: 2
           },
@@ -992,17 +992,17 @@
     new Chart(document.getElementById('latencyBarChart').getContext('2d'), {
       type: 'bar',
       data: {
-        labels: ["Chat RAG (Mock)","Busca Híbrida","Frontend (Home SPA)","Gestão de Materiais","Autenticação IAM"],
+        labels: ["Busca Híbrida","Chat RAG (Mock)","Frontend (Home SPA)","Gestão de Materiais","Autenticação IAM"],
         datasets: [
           {
             label: 'Latência p(95) ms',
-            data: ["495.0","471.8","369.0","461.0","401.1"],
+            data: ["470.5","488.9","387.5","664.8","313.9"],
             backgroundColor: '#0284c7',
             borderRadius: 2
           },
           {
             label: 'Latência Média ms',
-            data: ["261.1","115.8","129.0","192.9","209.4"],
+            data: ["112.5","293.6","154.1","209.0","183.6"],
             backgroundColor: '#94a3b8',
             borderRadius: 2
           }
@@ -1026,7 +1026,7 @@
       type: 'line',
       data: {
         labels: ["0s","5s","11s","16s","21s","27s","32s","37s","43s","48s","53s","59s","64s"],
-        datasets: [{"label":"Chat RAG (Mock)","data":[13.5,117.1,220.7,324.3,367.5,367.5,401.4,435.4,435.4,401.4,470.3,470.3,324.3],"borderColor":"#0284c7","backgroundColor":"#0284c715","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Busca Híbrida","data":[14.5,18.2,21.8,25.5,314.4,314.4,329.4,344.4,344.4,329.4,448.2,448.2,25.5],"borderColor":"#0d9488","backgroundColor":"#0d948815","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Frontend (Home SPA)","data":[7.8,34,60.3,86.5,256.2,256.2,273,289.8,289.8,273,350.6,350.6,86.5],"borderColor":"#6366f1","backgroundColor":"#6366f115","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Gestão de Materiais","data":[10.3,63.3,116.4,169.4,328.7,328.7,353.8,378.8,378.8,353.8,437.9,437.9,169.4],"borderColor":"#d97706","backgroundColor":"#d9770615","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Autenticação IAM","data":[11.2,93.4,175.6,257.8,297.2,297.2,324.4,351.6,351.6,324.4,381,381,257.8],"borderColor":"#e11d48","backgroundColor":"#e11d4815","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false}]
+        datasets: [{"label":"Busca Híbrida","data":[16.7,20.7,24.6,28.6,312.7,312.7,327.3,341.9,341.9,327.3,447,447,28.6],"borderColor":"#0284c7","backgroundColor":"#0284c715","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Chat RAG (Mock)","data":[15.7,125.6,235.4,345.3,372.6,372.6,410.8,448.9,448.9,410.8,464.5,464.5,345.3],"borderColor":"#0d9488","backgroundColor":"#0d948815","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Frontend (Home SPA)","data":[6.6,46.2,85.8,125.4,274.1,274.1,294.1,314.2,314.2,294.1,368.1,368.1,125.4],"borderColor":"#6366f1","backgroundColor":"#6366f115","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Gestão de Materiais","data":[10.8,53.7,96.6,139.5,455.3,455.3,482.5,509.6,509.6,482.5,631.6,631.6,139.5],"borderColor":"#d97706","backgroundColor":"#d9770615","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Autenticação IAM","data":[16.1,58.8,101.4,144.1,237.9,237.9,261.8,285.6,285.6,261.8,298.2,298.2,144.1],"borderColor":"#e11d48","backgroundColor":"#e11d4815","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false}]
       },
       options: {
         responsive: true,
@@ -1075,7 +1075,7 @@
       type: 'line',
       data: {
         labels: ["0s","5s","11s","16s","21s","27s","32s","37s","43s","48s","53s","59s","64s"],
-        datasets: [{"label":"Chat RAG (Mock)","data":[0,1.09,1.79,1.76,1.67,1.59,1.55,1.59,1.67,1.76,1.79,1.09,0],"borderColor":"#0284c7","backgroundColor":"#0284c715","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Busca Híbrida","data":[0,1.12,1.74,1.65,1.57,1.55,1.61,1.7,1.77,1.79,1.74,0.98,0],"borderColor":"#0d9488","backgroundColor":"#0d948815","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Frontend (Home SPA)","data":[0,1.05,1.62,1.56,1.56,1.63,1.72,1.79,1.78,1.71,1.62,0.89,0],"borderColor":"#6366f1","backgroundColor":"#6366f115","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Gestão de Materiais","data":[0,0.54,0.91,0.92,0.97,1.02,1.05,1.04,0.99,0.94,0.91,0.53,0],"borderColor":"#d97706","backgroundColor":"#d9770615","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Autenticação IAM","data":[0,0.22,0.4,0.42,0.44,0.45,0.44,0.42,0.39,0.39,0.4,0.25,0.02],"borderColor":"#e11d48","backgroundColor":"#e11d4815","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false}]
+        datasets: [{"label":"Busca Híbrida","data":[0,1.17,1.92,1.89,1.79,1.7,1.66,1.7,1.79,1.89,1.92,1.17,0],"borderColor":"#0284c7","backgroundColor":"#0284c715","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Chat RAG (Mock)","data":[0,1.2,1.86,1.77,1.68,1.67,1.72,1.82,1.9,1.92,1.86,1.05,0],"borderColor":"#0d9488","backgroundColor":"#0d948815","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Frontend (Home SPA)","data":[0,1.12,1.74,1.67,1.67,1.75,1.85,1.92,1.91,1.84,1.74,0.95,0],"borderColor":"#6366f1","backgroundColor":"#6366f115","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Gestão de Materiais","data":[0,0.39,0.64,0.65,0.69,0.72,0.74,0.73,0.7,0.66,0.64,0.38,0],"borderColor":"#d97706","backgroundColor":"#d9770615","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false},{"label":"Autenticação IAM","data":[0,0.2,0.36,0.38,0.39,0.4,0.39,0.37,0.35,0.35,0.36,0.23,0.02],"borderColor":"#e11d48","backgroundColor":"#e11d4815","borderWidth":2,"pointRadius":3,"pointHoverRadius":6,"tension":0.35,"fill":false}]
       },
       options: {
         responsive: true,
