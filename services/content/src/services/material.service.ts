@@ -106,4 +106,19 @@ export class MaterialService {
 
     return deleted;
   }
+
+  /**
+   * Remove múltiplos materiais e suas versões com CASCADE
+   */
+  public static async bulkDelete(ids: string[]): Promise<{ count: number; deletedIds: string[] }> {
+    const result = await MaterialRepository.deleteMany(ids);
+    for (const id of result.deletedIds) {
+      await RabbitMQEventPublisher.publishMaterialExcluido({
+        event: 'material.excluido',
+        material_id: id,
+        timestamp: new Date().toISOString()
+      });
+    }
+    return result;
+  }
 }

@@ -48,6 +48,8 @@ export function generateDeterministicQueryEmbedding(text: string, dimensions = 7
 export class QueryEmbedderService {
   private readonly dimensions: number;
   private readonly ttlSeconds?: number;
+  private readonly l1Cache: Map<string, number[]> = new Map();
+  private readonly maxL1Entries = 500;
 
   constructor(dimensions = env.EMBEDDING_DIMENSIONS, ttlSeconds = env.REDIS_CACHE_TTL_SECONDS) {
     this.dimensions = dimensions;
@@ -62,12 +64,19 @@ export class QueryEmbedderService {
   public async getEmbedding(query: string): Promise<number[]> {
     const cacheKey = this.getCacheKey(query);
 
+    // 1. L1 In-Memory Cache (0ms latency)
+    if (this.l1Cache.has(cacheKey)) {
+      return this.l1Cache.get(cacheKey)!;
+    }
+
+    // 2. L2 Redis Cache
     if (getIsRedisConnected()) {
       try {
         const cached = await redis.get(cacheKey);
         if (cached) {
           const parsed = JSON.parse(cached);
           if (Array.isArray(parsed) && parsed.length === this.dimensions) {
+            this.setL1(cacheKey, parsed);
             return parsed;
           }
         }
@@ -76,8 +85,11 @@ export class QueryEmbedderService {
       }
     }
 
+    // 3. Cálculo Determinístico
     const embedding = generateDeterministicQueryEmbedding(query, this.dimensions);
+    this.setL1(cacheKey, embedding);
 
+    // Gravação assíncrona em L2 Redis
     if (getIsRedisConnected()) {
       try {
         if (this.ttlSeconds) {
@@ -91,6 +103,14 @@ export class QueryEmbedderService {
     }
 
     return embedding;
+  }
+
+  private setL1(key: string, vector: number[]): void {
+    if (this.l1Cache.size >= this.maxL1Entries) {
+      const firstKey = this.l1Cache.keys().next().value;
+      if (firstKey) this.l1Cache.delete(firstKey);
+    }
+    this.l1Cache.set(key, vector);
   }
 }
 

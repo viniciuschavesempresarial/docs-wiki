@@ -37,3 +37,9 @@ export const RollbackDTOSchema = z.object({
 });
 
 export type RollbackDTO = z.infer<typeof RollbackDTOSchema>;
+
+export const BulkDeleteMaterialsDTOSchema = z.object({
+  material_ids: z.array(z.string().uuid('ID inválido')).min(1, 'Selecione pelo menos um material para exclusão')
+});
+
+export type BulkDeleteMaterialsDTO = z.infer<typeof BulkDeleteMaterialsDTOSchema>;

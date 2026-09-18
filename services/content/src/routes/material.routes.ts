@@ -215,4 +215,24 @@ router.get('/materials/:id/diff', MaterialController.getDiff);
  */
 router.delete('/materials/:id', auth, requirePermission('materials:delete'), MaterialController.delete);
 
+/**
+ * @openapi
+ * /materials/bulk-delete:
+ *   post:
+ *     summary: Remove múltiplos materiais com CASCADE
+ *     tags: [Materiais]
+ *     security:
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/BulkDeleteMaterialsDTO'
+ *     responses:
+ *       200:
+ *         description: Materiais removidos com sucesso
+ */
+router.post('/materials/bulk-delete', auth, requirePermission('materials:delete'), MaterialController.bulkDelete);
+
 export { router as materialRoutes };

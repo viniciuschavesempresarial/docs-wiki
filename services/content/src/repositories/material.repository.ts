@@ -83,26 +83,43 @@ export class MaterialRepository {
     }
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
-    const countRes = await db.query(
-      `SELECT COUNT(*) as total FROM conteudo.materiais m LEFT JOIN conteudo.material_versoes v ON m.versao_head_id = v.id ${whereClause};`,
-      values
-    );
-    const total = parseInt(countRes.rows[0].total, 10);
+    
+    // Contagem otimizada: evita JOIN com material_versoes se não for busca textual no JSONB
+    const countQuery = filters.search
+      ? `SELECT COUNT(*) as total FROM conteudo.materiais m LEFT JOIN conteudo.material_versoes v ON m.versao_head_id = v.id ${whereClause};`
+      : `SELECT COUNT(*) as total FROM conteudo.materiais m ${whereClause};`;
+
+    const countRes = await db.query(countQuery, values);
+    const total = parseInt(countRes.rows[0]?.total || '0', 10);
 
     const limit = filters.limit || 20;
     const offset = filters.offset || 0;
 
+    // CTE paginada: fatia primeiro os registros de materiais por índice antes de buscar metadados de versão
     const dataQuery = `
+      WITH page_materiais AS (
+        SELECT m.id, m.slug, m.tipo, m.categoria, m.status, m.versao_head_id, m.created_at, m.updated_at
+        FROM conteudo.materiais m
+        ${filters.search ? 'LEFT JOIN conteudo.material_versoes v ON m.versao_head_id = v.id' : ''}
+        ${whereClause}
+        ORDER BY m.updated_at DESC
+        LIMIT $${idx++} OFFSET $${idx++}
+      )
       SELECT 
-        m.*,
-        COALESCE(v.conteudo_jsonb->>'title', v.conteudo_jsonb->>'titulo', m.slug) as titulo,
+        pm.id,
+        pm.slug,
+        pm.tipo,
+        pm.categoria,
+        pm.status,
+        pm.versao_head_id,
+        pm.created_at,
+        pm.updated_at,
+        COALESCE(v.conteudo_jsonb->>'title', v.conteudo_jsonb->>'titulo', pm.slug) as titulo,
         v.conteudo_jsonb->>'autor' as autor,
         v.conteudo_jsonb->'tags' as tags
-      FROM conteudo.materiais m
-      LEFT JOIN conteudo.material_versoes v ON m.versao_head_id = v.id
-      ${whereClause}
-      ORDER BY m.updated_at DESC
-      LIMIT $${idx++} OFFSET $${idx++};
+      FROM page_materiais pm
+      LEFT JOIN conteudo.material_versoes v ON pm.versao_head_id = v.id
+      ORDER BY pm.updated_at DESC;
     `;
     const dataRes = await db.query(dataQuery, [...values, limit, offset]);
 
@@ -155,5 +172,23 @@ export class MaterialRepository {
     // 3. Remove o índice de busca e metadados (os chunks em busca.material_chunks são removidos via ON DELETE CASCADE)
     await db.query(`DELETE FROM busca.indices_busca WHERE material_id = $1;`, [id]);
     return (res.rowCount || 0) > 0;
+  }
+
+  public static async deleteMany(ids: string[], client?: PoolClient): Promise<{ count: number; deletedIds: string[] }> {
+    if (!ids || ids.length === 0) {
+      return { count: 0, deletedIds: [] };
+    }
+    const db = client || pool;
+    // 1. Limpa a restrição circular de chave estrangeira (versao_head_id) para os IDs
+    await db.query(`UPDATE conteudo.materiais SET versao_head_id = NULL WHERE id = ANY($1::uuid[]);`, [ids]);
+    // 2. Remove da tabela principal com CASCADE
+    const res = await db.query(`DELETE FROM conteudo.materiais WHERE id = ANY($1::uuid[]) RETURNING id;`, [ids]);
+    const deletedIds = res.rows.map((r) => r.id);
+    // 3. Remove os índices de busca e metadados com CASCADE
+    await db.query(`DELETE FROM busca.indices_busca WHERE material_id = ANY($1::uuid[]);`, [ids]);
+    return {
+      count: deletedIds.length,
+      deletedIds
+    };
   }
 }

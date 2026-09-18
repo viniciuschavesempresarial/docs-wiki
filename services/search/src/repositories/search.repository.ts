@@ -98,12 +98,20 @@ export class SearchRepository {
           FROM busca.indices_busca b
           WHERE b.busca_texto @@ plainto_tsquery('portuguese', ${queryTextParam})
         ),
-        vector_search AS (
+        vector_candidates AS (
           SELECT 
             c.material_id,
-            MAX(1 - (c.embedding <=> ${vectorParam}::vector)) AS vector_score
+            (1 - (c.embedding <=> ${vectorParam}::vector)) AS chunk_score
           FROM busca.material_chunks c
-          GROUP BY c.material_id
+          ORDER BY c.embedding <=> ${vectorParam}::vector ASC
+          LIMIT 100
+        ),
+        vector_search AS (
+          SELECT 
+            vc.material_id,
+            MAX(vc.chunk_score) AS vector_score
+          FROM vector_candidates vc
+          GROUP BY vc.material_id
           ORDER BY vector_score DESC
           LIMIT 50
         )
@@ -218,7 +226,7 @@ export class SearchRepository {
       FROM busca.material_chunks c
       JOIN busca.indices_busca b ON c.material_id = b.material_id
       WHERE c.material_id = ANY($2::uuid[])
-      ORDER BY similarity DESC
+      ORDER BY c.embedding <=> $1::vector ASC
       LIMIT $3;
     `;
 
