@@ -37,6 +37,8 @@ export const SourceCitations: React.FC<SourceCitationsProps> = ({ sources }) => 
           >
             <div className="flex flex-col truncate">
               <Link
+                id={`link-source-citation-${idx}`}
+                data-testid={`link-source-citation-${idx}`}
                 to={`/editor/${src.material_id}`}
                 className="font-medium text-slate-200 hover:text-brand-300 truncate"
               >

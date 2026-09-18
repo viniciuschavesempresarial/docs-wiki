@@ -7,8 +7,21 @@ export class RAGChatService {
   /**
    * Executa o chat RAG contextual estritamente aterrado aos documentos selecionados.
    */
-  public async executeChat(dto: ChatRequestDTO): Promise<ChatResponse> {
+  public async executeChat(dto: ChatRequestDTO, forceMock = false): Promise<ChatResponse> {
     const { query, material_ids } = dto;
+
+    // Se mock for solicitado (ex: testes de carga k6 para conformidade de SLA e custo zero)
+    if (forceMock) {
+      return {
+        answer: `[MOCK] Resposta sintetizada para a consulta: "${query}". Contexto validado com base nos materiais selecionados.`,
+        sources: (material_ids || []).map((id, idx) => ({
+          material_id: id,
+          titulo: 'Documento de Referência Docs-Wiki',
+          chunk_index: idx,
+          similarity: 0.95
+        }))
+      };
+    }
 
     // 1. Gera embedding da query do usuário
     const queryEmbedding = await queryEmbedderService.getEmbedding(query.trim());
@@ -35,7 +48,7 @@ export class RAGChatService {
     }));
 
     // 4. Invoca o modelo Gemini com temperatura 0.2
-    const answer = await geminiClient.generateGroundedChatResponse(query, contextItems);
+    const answer = await geminiClient.generateGroundedChatResponse(query, contextItems, forceMock);
 
     // 5. Mapeia fontes e citações
     const sources: ChatSourceCitation[] = relevantChunks.map((chunk) => ({

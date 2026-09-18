@@ -214,56 +214,39 @@ A infraestrutura foi desenhada para suportar **testes de carga contínuos de alt
 
 ### 📐 Topologia de Comunicação e Portas
 
-```
-+---------------------------------------------------------------------------------------------------+
-|                                 NÓ 3: GERADOR DE CARGA (LOAD GENERATOR)                           |
-|                                                                                                   |
-|  [ k6 / Artillery / Locust ]                                                                      |
-|       |                                                                                           |
-|       | HTTP (80) / HTTPS (443) - Carga de Teste                                                  |
-+-------|-------------------------------------------------------------------------------------------+
-        |
-        v
-+---------------------------------------------------------------------------------------------------+
-|                                   NÓ 1: STAGING / TARGET (AMBIENTE SOB TESTE)                     |
-|                                                                                                   |
-|  [ NGINX Gateway ] ---> [ Frontend | IAM (3001) | Content (3002) | Search (3004) | NLP Worker ]  |
-|                                |                 |                      |                         |
-|                         [ Postgres 5432 ]  [ Redis 6379 ]        [ RabbitMQ 5672/15672 ]          |
-|                                                  |                      |                         |
-|  ============================== AGENTES LEVES DE COLETA LOCAL =================================== |
-|                                                                                                   |
-|  [ Telegraf Agent ] (interval: 2s)                                                                |
-|    - Inputs: docker.sock (Containers), cpu, mem, system, disk, net, redis (6379), rabbitmq (15672)|
-|    - Output: Influx Line Protocol (HTTP POST) ----------------------------------------------+     |
-|                                                                                             |     |
-|  [ Promtail Shipper ]                                                                       |     |
-|    - Input: /var/lib/docker/containers/*/*-json.log                                         |     |
-|    - Output: Loki Push API (HTTP POST) -----------------------------------------------+     |     |
-+---------------------------------------------------------------------------------------|-----|-----+
-                                                                                        |     |
-                                          HTTP POST Métricas (Porta 8428) --------------+     |
-                                          HTTP POST Logs (Porta 3100) ------------------------+
-                                                                                        |     |
-                                                                                        v     v
-+---------------------------------------------------------------------------------------------------+
-|                                 NÓ 2: OBSERVABILIDADE & MONITORAMENTO (ISOLADO)                   |
-|                                                                                                   |
-|   +--------------------------+    +--------------------------+                                    |
-|   |  VictoriaMetrics TSDB    |    |      Grafana Loki        |                                    |
-|   |  (Porta 8428)            |    |      (Porta 3100)        |                                    |
-|   |  Volume: vmdata          |    |      Volume: lokidata    |                                    |
-|   +--------------------------+    +--------------------------+                                    |
-|                \                                /                                                 |
-|                 \  PromQL / MetricsQL          /  LogQL                                           |
-|                  v                            v                                                   |
-|             +--------------------------------------+                                              |
-|             |          Grafana Dashboard           |                                              |
-|             |          (Porta 3000)                |                                              |
-|             |          Volume: grafanadata         |                                              |
-|             |          Auto-provisioned datasources|                                              |
-|             +--------------------------------------+                                              |
-+---------------------------------------------------------------------------------------------------+
+```mermaid
+flowchart TD
+    subgraph LoadGen_Node ["Nó 3: Gerador de Carga (Load Generator / Localhost)"]
+        LoadGen["⚡ k6 / Artillery Runner"]
+    end
+
+    subgraph Staging_Node ["Nó 1: Staging / Target (Ambiente sob Teste - Proxmox)"]
+        NGINX["🛡️ NGINX Gateway"]
+        Services["📦 Microsserviços & DBs<br/>(IAM, Content, Search, NLP, Postgres, Redis, RabbitMQ)"]
+        
+        subgraph Local_Agents ["Agentes Leves de Coleta Local (Staging)"]
+            Telegraf["⏱️ Telegraf Agent (intervalo: 2s)<br/><i>(docker.sock, host, redis, rabbitmq)</i>"]
+            Promtail["🔍 Promtail Shipper<br/><i>(/var/lib/docker/containers/*/*.log)</i>"]
+        end
+
+        NGINX --> Services
+        Services -.-> Telegraf
+        Services -.-> Promtail
+    end
+
+    subgraph Monitoring_Node ["Nó 2: Observabilidade & Monitoramento Isolado (Localhost / VM)"]
+        VM[("📈 VictoriaMetrics TSDB<br/><i>(Porta 8428)</i>")]
+        Loki["📊 Grafana Loki<br/><i>(Porta 3100)</i>"]
+        Grafana["📉 Grafana Dashboards<br/><i>(Porta 3000)</i>"]
+
+        VM --> Grafana
+        Loki --> Grafana
+    end
+
+    LoadGen -->|"HTTP: 80 / HTTPS: 443 - Carga de Teste<br/>(Header: X-K6-Test)"| NGINX
+    LoadGen -.->|"Prometheus Remote Write (8428)"| VM
+    Telegraf -->|"Influx Line Protocol HTTP (8428)"| VM
+    Promtail -->|"Loki Push API HTTP (3100)"| Loki
 ```
 
 ### 🚀 Como Executar os Ambientes
@@ -293,12 +276,37 @@ docker compose up -d
 
 ---
 
-## 🛠️ 6. Resolução de Problemas (Troubleshooting)
+## ⚡ 6. Testes de Carga & Performance (Grafana k6)
+
+O projeto inclui suítes completas de testes de carga simulando jornadas reais com política de **Zero Custo de Tokens de IA** (`GEMINI_API_KEY=mock_gemini_api_key`), bypass seguro de rate limit de borda via cabeçalho `X-K6-Secret` (Padrão B: Shared Secret) e geração de relatórios executivos com gráficos interativos.
+
+```powershell
+# 1. Smoke Test (5 VUs - 1 min) - Validação rápida de rotas
+docker compose -f docker-compose.k6.yml run --rm -e SCENARIO=smoke k6
+
+# 2. Load Test (25 VUs - 10 min) - Carga operacional típica
+docker compose -f docker-compose.k6.yml run --rm -e SCENARIO=load k6
+
+# 3. Stress Test (Pico em 80 VUs - 6 min) - Teste de saturação e resiliência
+docker compose -f docker-compose.k6.yml run --rm -e SCENARIO=stress k6
+
+# 4. Soak Test (15 VUs - 30 min) - Estabilidade contínua
+docker compose -f docker-compose.k6.yml run --rm -e SCENARIO=soak k6
+```
+
+- **Relatórios HTML Executivos:** Gerados em `./k6/reports/k6-summary-<cenario>.html` com 6 gráficos temporais, favicon exclusivo e tabela com diagnóstico recolhível de erros HTTP.
+- **Painel em Tempo Real no Grafana (Nó Gerador de Carga / Localhost):** Acesse [http://localhost:3000/d/k6-load-testing](http://localhost:3000/d/k6-load-testing) (Usuário: `admin` / Senha: `admin123`).
+
+---
+
+## 🛠️ 7. Resolução de Problemas (Troubleshooting)
 
 | Sintoma | Causa Provável | Solução |
 | :--- | :--- | :--- |
 | **Erro de conexão com o Postgres** | Containers iniciados antes do banco estar pronto. | O `docker-compose.yml` utiliza `depends_on: condition: service_healthy`. Verifique os logs com `docker compose logs postgres`. |
 | **Erro 401 Unauthorized no Chat ou Busca** | Cookie de autenticação ausente ou expirado. | Faça login novamente em `/login` para emitir um novo token JWT no cookie. |
+| **Erro 429 Too Many Requests no Teste k6** | Nginx de Staging com rate limit antigo em memória ou `X-K6-Secret` incorreto. | Execute no servidor: `git pull origin staging` e recarregue com `docker exec homelab_nginx nginx -s reload`. |
+| **Erro de Certificado SSL no Nginx (`cannot load certificate`)** | Arquivos `fullchain.pem` ou `privkey.pem` ausentes em `certs/`. | Gere os certificados com: `sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout certs/privkey.pem -out certs/fullchain.pem -subj "/CN=192.168.0.107"` e reinicie com `docker restart homelab_nginx`. |
 | **Sumarização / Chat RAG não responde** | `GEMINI_API_KEY` ausente ou inválida. | Verifique se a chave da API do Gemini está configurada no `.env` e reinicie o serviço com `docker compose restart search-service`. |
 | **Erro de Certificado SSL no Navegador** | Certificado autoassinado gerado para desenvolvimento. | Aceite o certificado no navegador ou configure certificados válidos via Let's Encrypt / Certbot em `certs/`. |
 

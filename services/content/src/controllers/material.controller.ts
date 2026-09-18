@@ -2,7 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import {
   CreateMaterialDTOSchema,
   CommitVersionDTOSchema,
-  RollbackDTOSchema
+  RollbackDTOSchema,
+  BulkDeleteMaterialsDTOSchema
 } from '@shared/contracts';
 import { GitLikeService } from '../services/gitLike.service.js';
 import { MaterialService } from '../services/material.service.js';
@@ -167,6 +168,23 @@ export class MaterialController {
       const { id } = req.params;
       await MaterialService.delete(id);
       res.status(200).json({ message: 'Material removido com sucesso.' });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  /**
+   * POST /materials/bulk-delete: Remove múltiplos materiais com CASCADE
+   */
+  public static async bulkDelete(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const parsedBody = BulkDeleteMaterialsDTOSchema.parse(req.body);
+      const result = await MaterialService.bulkDelete(parsedBody.material_ids);
+      res.status(200).json({
+        message: `${result.count} material(is) removido(s) com sucesso.`,
+        deleted_count: result.count,
+        deleted_ids: result.deletedIds
+      });
     } catch (err) {
       next(err);
     }

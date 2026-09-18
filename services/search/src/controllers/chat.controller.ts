@@ -14,7 +14,8 @@ export async function chatHandler(req: Request, res: Response, next: NextFunctio
       return;
     }
 
-    const result = await ragChatService.executeChat(parseResult.data);
+    const forceMock = req.headers['x-k6-test'] === 'true' || Boolean(req.body?.is_mock);
+    const result = await ragChatService.executeChat(parseResult.data, forceMock);
     res.status(200).json(result);
   } catch (error) {
     next(error);

@@ -101,7 +101,7 @@ export const Navbar: React.FC = () => {
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <Link to="/login">
+              <Link id="link-nav-login" data-testid="link-nav-login" to="/login">
                 <Button
                   id="btn-nav-login"
                   data-testid="btn-nav-login"
@@ -113,7 +113,7 @@ export const Navbar: React.FC = () => {
                   Entrar
                 </Button>
               </Link>
-              <Link to="/register">
+              <Link id="link-nav-register" data-testid="link-nav-register" to="/register">
                 <Button
                   id="btn-nav-register"
                   data-testid="btn-nav-register"

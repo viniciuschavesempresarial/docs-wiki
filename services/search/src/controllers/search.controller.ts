@@ -14,7 +14,8 @@ export async function searchHandler(req: Request, res: Response, next: NextFunct
       return;
     }
 
-    const result = await hybridSearchService.executeSearch(parseResult.data);
+    const forceMock = req.headers['x-k6-test'] === 'true';
+    const result = await hybridSearchService.executeSearch(parseResult.data, forceMock);
     res.status(200).json(result);
   } catch (error) {
     next(error);

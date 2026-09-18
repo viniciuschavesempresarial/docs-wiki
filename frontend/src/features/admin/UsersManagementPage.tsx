@@ -180,7 +180,7 @@ export const UsersManagementPage: React.FC = () => {
 
       {/* Metrics Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <Card id="card-stat-total" className="p-4 bg-slate-900/60 border-slate-800 flex items-center gap-3">
+        <Card id="card-stat-total" data-testid="card-stat-total" className="p-4 bg-slate-900/60 border-slate-800 flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-brand-500/10 text-brand-400 border border-brand-500/20 flex items-center justify-center shrink-0">
             <User className="w-5 h-5" />
           </div>
@@ -190,7 +190,7 @@ export const UsersManagementPage: React.FC = () => {
           </div>
         </Card>
 
-        <Card id="card-stat-admins" className="p-4 bg-slate-900/60 border-slate-800 flex items-center gap-3">
+        <Card id="card-stat-admins" data-testid="card-stat-admins" className="p-4 bg-slate-900/60 border-slate-800 flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20 flex items-center justify-center shrink-0">
             <KeyRound className="w-5 h-5" />
           </div>
@@ -200,7 +200,7 @@ export const UsersManagementPage: React.FC = () => {
           </div>
         </Card>
 
-        <Card id="card-stat-editors" className="p-4 bg-slate-900/60 border-slate-800 flex items-center gap-3">
+        <Card id="card-stat-editors" data-testid="card-stat-editors" className="p-4 bg-slate-900/60 border-slate-800 flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
             <Edit3 className="w-5 h-5" />
           </div>
@@ -210,7 +210,7 @@ export const UsersManagementPage: React.FC = () => {
           </div>
         </Card>
 
-        <Card id="card-stat-readers" className="p-4 bg-slate-900/60 border-slate-800 flex items-center gap-3">
+        <Card id="card-stat-readers" data-testid="card-stat-readers" className="p-4 bg-slate-900/60 border-slate-800 flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center shrink-0">
             <BookOpen className="w-5 h-5" />
           </div>
@@ -250,7 +250,7 @@ export const UsersManagementPage: React.FC = () => {
       </div>
 
       {/* Users Table */}
-      <Card id="card-users-table" className="overflow-hidden border-slate-800 shadow-2xl bg-slate-900/40 backdrop-blur-sm p-0">
+      <Card id="card-users-table" data-testid="card-users-table" className="overflow-hidden border-slate-800 shadow-2xl bg-slate-900/40 backdrop-blur-sm p-0">
         {isLoading ? (
           <div className="py-16 flex flex-col items-center justify-center gap-3">
             <div className="w-8 h-8 border-4 border-brand-500/30 border-t-brand-500 rounded-full animate-spin" />
@@ -416,8 +416,8 @@ export const UsersManagementPage: React.FC = () => {
 
       {/* Modal de Confirmação de Exclusão de Usuário */}
       {userToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-slate-900 border border-rose-500/30 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
+        <div id="modal-delete-user-backdrop" data-testid="modal-delete-user-backdrop" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
+          <div id="modal-delete-user" data-testid="modal-delete-user" className="bg-slate-900 border border-rose-500/30 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
             <div className="flex items-center gap-3 text-rose-400">
               <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center">
                 <AlertCircle className="w-6 h-6 text-rose-400" />

@@ -52,13 +52,16 @@ jobs:
       - name: 🔒 Garantir Certificados SSL
         run: |
           mkdir -p certs
-          if [ ! -f certs/fullchain.pem ] || [ ! -f certs/privkey.pem ]; then
+          sudo chown -R $(id -u):$(id -g) certs 2>/dev/null || sudo chmod -R 777 certs 2>/dev/null || chmod -R 777 certs 2>/dev/null || true
+          if [ ! -s certs/fullchain.pem ] || [ ! -s certs/privkey.pem ]; then
             openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
               -keyout certs/privkey.pem \
               -out certs/fullchain.pem \
               -subj "/CN=docswiki.local"
-            chmod 644 certs/*.pem
+            chmod 644 certs/*.pem 2>/dev/null || true
             echo "✅ Certificados SSL autoassinados gerados com sucesso."
+          else
+            echo "✅ Certificados SSL já existentes e válidos."
           fi
 
       - name: Subir Containers Atualizados (Build Paralelo)

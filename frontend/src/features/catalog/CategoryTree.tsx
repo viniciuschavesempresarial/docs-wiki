@@ -66,6 +66,8 @@ export const CategoryTree: React.FC = () => {
         </h3>
         {categoria && (
           <button
+            id="btn-limpar-categoria-tree"
+            data-testid="btn-limpar-categoria-tree"
             onClick={() => {
               setCategoria('');
               setTipo('');

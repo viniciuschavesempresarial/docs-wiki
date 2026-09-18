@@ -9,6 +9,8 @@ export interface FilterState {
   tipo: string;
   tags: string[];
   fuzzy: boolean;
+  page: number;
+  limit: number;
   setTermo: (termo: string) => void;
   setSummarize: (summarize: boolean) => void;
   setDataInicio: (data: string) => void;
@@ -17,6 +19,8 @@ export interface FilterState {
   setTipo: (tipo: string) => void;
   setTags: (tags: string[]) => void;
   setFuzzy: (fuzzy: boolean) => void;
+  setPage: (page: number) => void;
+  setLimit: (limit: number) => void;
   resetFilters: () => void;
 }
 
@@ -29,17 +33,22 @@ const initialState = {
   tipo: '',
   tags: [] as string[],
   fuzzy: false,
+  page: 1,
+  limit: 10,
 };
 
 export const useFilterStore = create<FilterState>((set) => ({
   ...initialState,
-  setTermo: (termo) => set({ termo }),
+  setTermo: (termo) => set({ termo, page: 1 }),
   setSummarize: (summarize) => set({ summarize }),
-  setDataInicio: (dataInicio) => set({ dataInicio }),
-  setDataFim: (dataFim) => set({ dataFim }),
-  setCategoria: (categoria) => set({ categoria }),
-  setTipo: (tipo) => set({ tipo }),
-  setTags: (tags) => set({ tags }),
-  setFuzzy: (fuzzy) => set({ fuzzy }),
+  setDataInicio: (dataInicio) => set({ dataInicio, page: 1 }),
+  setDataFim: (dataFim) => set({ dataFim, page: 1 }),
+  setCategoria: (categoria) => set({ categoria, page: 1 }),
+  setTipo: (tipo) => set({ tipo, page: 1 }),
+  setTags: (tags) => set({ tags, page: 1 }),
+  setFuzzy: (fuzzy) => set({ fuzzy, page: 1 }),
+  setPage: (page) => set({ page }),
+  setLimit: (limit) => set({ limit, page: 1 }),
   resetFilters: () => set(initialState),
 }));
+

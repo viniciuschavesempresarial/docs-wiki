@@ -5,6 +5,9 @@ import { renderWithProviders } from './testUtils';
 import { HomePage } from '../features/catalog/HomePage';
 import apiClient from '../api/client';
 
+import { useFilterStore } from '../stores/useFilterStore';
+import { useMaterialSelectionStore } from '../stores/useMaterialSelectionStore';
+
 jest.mock('../api/client');
 const mockedApiClient = apiClient as jest.Mocked<typeof apiClient>;
 
@@ -34,6 +37,8 @@ const mockSearchResults = {
 describe('Feature: Acervo e Busca Inteligente', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    useFilterStore.getState().resetFilters();
+    useMaterialSelectionStore.getState().clearSelection();
   });
 
   test('deve renderizar a busca principal, filtros avançados e resultados do acervo', async () => {
@@ -87,6 +92,45 @@ describe('Feature: Acervo e Busca Inteligente', () => {
       expect(mockedApiClient.get).toHaveBeenCalledWith(
         expect.stringContaining('/api/search')
       );
+    });
+  });
+
+  test('deve renderizar a paginação quando houver resultados', async () => {
+    mockedApiClient.get.mockResolvedValue({
+      data: {
+        ...mockSearchResults,
+        total: 25,
+        page: 1,
+        limit: 10,
+      }
+    });
+
+    renderWithProviders(<HomePage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('pagination-container')).toBeInTheDocument();
+      expect(screen.getByTestId('pagination-container')).toHaveTextContent(/Mostrando 1 a 10 de 25 materiais/i);
+      expect(screen.getByTestId('btn-page-1')).toBeInTheDocument();
+      expect(screen.getByTestId('btn-page-2')).toBeInTheDocument();
+    });
+  });
+
+  test('deve selecionar todos os itens da página ao clicar no botão de seleção em massa', async () => {
+    const user = userEvent.setup();
+    mockedApiClient.get.mockResolvedValue({ data: mockSearchResults });
+
+    renderWithProviders(<HomePage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('btn-select-all-page')).toBeInTheDocument();
+    });
+
+    const selectAllBtn = screen.getByTestId('btn-select-all-page');
+    await user.click(selectAllBtn);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('toolbar-multi-selection')).toBeInTheDocument();
+      expect(screen.getByTestId('toolbar-multi-selection')).toHaveTextContent('1 material(is) selecionado(s)');
     });
   });
 });

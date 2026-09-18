@@ -160,6 +160,9 @@ CREATE INDEX idx_material_versoes_autor_id ON conteudo.material_versoes(autor_id
 CREATE INDEX idx_material_versoes_parent_id ON conteudo.material_versoes(parent_version_id);
 CREATE INDEX idx_materiais_categoria ON conteudo.materiais(categoria);
 CREATE INDEX idx_materiais_tipo ON conteudo.materiais(tipo);
+CREATE INDEX idx_materiais_status ON conteudo.materiais(status);
+CREATE INDEX idx_materiais_versao_head_id ON conteudo.materiais(versao_head_id);
+CREATE INDEX idx_materiais_updated_at ON conteudo.materiais(updated_at DESC);
 
 -- =============================================================================
 -- 6. SCHEMA BUSCA (PARENT-DOCUMENT RETRIEVER & VETORES HNSW)

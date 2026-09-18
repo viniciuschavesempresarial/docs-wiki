@@ -1,10 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { User, Calendar, HardDrive, Hash, GitCompare, Edit, Sparkles } from 'lucide-react';
+import { User, Calendar, HardDrive, Hash, GitCompare, Edit, Sparkles, Trash2, CheckSquare, Square } from 'lucide-react';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { useChatStore } from '../../stores/useChatStore';
+import { useMaterialSelectionStore } from '../../stores/useMaterialSelectionStore';
+import { useAuth } from '../auth/useAuth';
 
 export interface DocumentCardProps {
   id: string;
@@ -19,6 +21,7 @@ export interface DocumentCardProps {
   data_publicacao?: string | Date;
   resumo_okf?: string;
   hybrid_score?: number;
+  onDelete?: (id: string, titulo: string) => void;
 }
 
 export const DocumentCard: React.FC<DocumentCardProps> = ({
@@ -33,9 +36,16 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
   data_publicacao,
   resumo_okf,
   hybrid_score,
+  onDelete,
 }) => {
+  const { user } = useAuth();
+  const isAdmin = user?.roles?.includes('ADMIN');
+
   const { selectedDocIds, toggleDocSelection } = useChatStore();
   const isSelectedForRAG = selectedDocIds.includes(id);
+
+  const { isSelected, toggleSelection } = useMaterialSelectionStore();
+  const isChecked = isSelected(id);
 
   const formattedSize =
     tamanho_bytes >= 1024 * 1024
@@ -56,16 +66,35 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
     <Card
       id={`card-doc-${id}`}
       data-testid={`card-doc-${id}`}
-      className="flex flex-col justify-between hover:border-slate-700 transition group relative"
+      className={`flex flex-col justify-between transition group relative ${
+        isChecked
+          ? 'border-brand-500/80 bg-brand-950/20 shadow-lg shadow-brand-500/5'
+          : 'hover:border-slate-700'
+      }`}
     >
       <div>
-        {/* Top Badges & Scores */}
+        {/* Top Header: Checkbox + Badges & Scores */}
         <div className="flex items-center justify-between gap-2 mb-3">
-          <div className="flex items-center gap-2 flex-wrap">
-            <Badge id={`badge-cat-${id}`} variant="primary">
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* Multi-Selection Checkbox */}
+            <button
+              id={`checkbox-select-${id}`}
+              data-testid={`checkbox-select-${id}`}
+              onClick={() => toggleSelection(id)}
+              className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition p-0.5 rounded focus:outline-none"
+              title={isChecked ? 'Desmarcar material' : 'Selecionar material'}
+            >
+              {isChecked ? (
+                <CheckSquare className="w-5 h-5 text-brand-400 fill-brand-500/20" />
+              ) : (
+                <Square className="w-5 h-5 text-slate-500 hover:text-slate-300" />
+              )}
+            </button>
+
+            <Badge id={`badge-cat-${id}`} data-testid={`badge-cat-${id}`} variant="primary">
               {categoria}
             </Badge>
-            <Badge id={`badge-tipo-${id}`} variant="secondary">
+            <Badge id={`badge-tipo-${id}`} data-testid={`badge-tipo-${id}`} variant="secondary">
               {tipo}
             </Badge>
           </div>
@@ -142,7 +171,7 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
           <button
             id={`btn-select-rag-${id}`}
             data-testid={`btn-select-rag-${id}`}
@@ -158,7 +187,7 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
           </button>
 
           <div className="flex items-center gap-2">
-            <Link to={`/diff/${id}`}>
+            <Link id={`link-doc-diff-${id}`} data-testid={`link-doc-diff-${id}`} to={`/diff/${id}`}>
               <Button
                 id={`btn-doc-diff-${id}`}
                 data-testid={`btn-doc-diff-${id}`}
@@ -171,7 +200,7 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
                 Diff
               </Button>
             </Link>
-            <Link to={`/editor/${id}`}>
+            <Link id={`link-doc-edit-${id}`} data-testid={`link-doc-edit-${id}`} to={`/editor/${id}`}>
               <Button
                 id={`btn-doc-edit-${id}`}
                 data-testid={`btn-doc-edit-${id}`}
@@ -183,6 +212,22 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
                 Editar
               </Button>
             </Link>
+
+            {/* Admin Delete Action */}
+            {isAdmin && onDelete && (
+              <Button
+                id={`btn-doc-delete-${id}`}
+                data-testid={`btn-doc-delete-${id}`}
+                variant="ghost"
+                size="sm"
+                onClick={() => onDelete(id, titulo)}
+                className="text-xs text-rose-400 hover:text-rose-200 hover:bg-rose-500/10"
+                title="Excluir Material (Admin)"
+              >
+                <Trash2 className="w-3.5 h-3.5 mr-1" />
+                Excluir
+              </Button>
+            )}
           </div>
         </div>
       </div>

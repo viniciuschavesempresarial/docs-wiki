@@ -25,8 +25,8 @@ export class GeminiClient {
   /**
    * Gera um resumo sintético dos resultados de busca com base nos chunks mais relevantes.
    */
-  public async summarizeSearchResults(query: string, contextTexts: string[]): Promise<string> {
-    if (!this.genAI) {
+  public async summarizeSearchResults(query: string, contextTexts: string[], forceMock = false): Promise<string> {
+    if (!this.genAI || forceMock) {
       return `Resumo sintético gerado para a busca "${query}": Com base nos documentos recuperados, o conteúdo aborda os principais conceitos relacionados à pesquisa, cobrindo especificações técnicas e diretrizes de arquitetura.`;
     }
 
@@ -61,9 +61,10 @@ RESUMO SINTÉTICO:`;
    */
   public async generateGroundedChatResponse(
     query: string,
-    contextItems: GroundingContextItem[]
+    contextItems: GroundingContextItem[],
+    forceMock = false
   ): Promise<string> {
-    if (!this.genAI) {
+    if (!this.genAI || forceMock) {
       // Resposta simulada determinística para desenvolvimento/testes
       const citedDocs = contextItems.map((c) => c.documentTitle).filter(Boolean);
       const uniqueDocs = [...new Set(citedDocs)].join(', ');

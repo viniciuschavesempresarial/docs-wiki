@@ -24,7 +24,8 @@ jest.mock('../../src/config/database.js', () => {
 jest.mock('../../src/queue/eventPublisher.js', () => ({
   RabbitMQEventPublisher: {
     publishMaterialCriado: jest.fn().mockResolvedValue(true),
-    publishMaterialAtualizado: jest.fn().mockResolvedValue(true)
+    publishMaterialAtualizado: jest.fn().mockResolvedValue(true),
+    publishMaterialExcluido: jest.fn().mockResolvedValue(true)
   }
 }));
 
@@ -374,6 +375,41 @@ Conteúdo da versão 2 atualizado.
       expect(res.body.v2).toBe(2);
       expect(Array.isArray(res.body.changes)).toBe(true);
       expect(res.body.changes.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('DELETE /materials/:id e POST /materials/bulk-delete', () => {
+    const materialId = '11111111-2222-3333-4444-555555555555';
+    const materialId2 = '22222222-3333-4444-5555-666666666666';
+
+    it('deve remover um material individual com CASCADE', async () => {
+      jest.spyOn(MaterialRepository, 'findById').mockResolvedValue({ id: materialId } as any);
+      jest.spyOn(MaterialRepository, 'delete').mockResolvedValue(true);
+
+      const res = await request(app)
+        .delete(`/materials/${materialId}`)
+        .set('Cookie', [authCookie]);
+
+      expect(res.status).toBe(200);
+      expect(res.body.message).toContain('removido');
+    });
+
+    it('deve remover múltiplos materiais com CASCADE em bulk-delete', async () => {
+      jest.spyOn(MaterialRepository, 'deleteMany').mockResolvedValue({
+        count: 2,
+        deletedIds: [materialId, materialId2]
+      });
+
+      const res = await request(app)
+        .post('/materials/bulk-delete')
+        .set('Cookie', [authCookie])
+        .send({
+          material_ids: [materialId, materialId2]
+        });
+
+      expect(res.status).toBe(200);
+      expect(res.body.deleted_count).toBe(2);
+      expect(res.body.deleted_ids).toEqual([materialId, materialId2]);
     });
   });
 });

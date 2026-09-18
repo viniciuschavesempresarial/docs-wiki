@@ -9,7 +9,7 @@ export const NotFoundPage: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-[70vh] flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-12 text-center select-none">
+    <div id="page-not-found" data-testid="page-not-found" className="min-h-[70vh] flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-12 text-center select-none">
       <div className="relative mb-6">
         {/* Glow behind icon */}
         <div className="absolute inset-0 bg-brand-500/20 blur-2xl rounded-full w-24 h-24 mx-auto"></div>
@@ -29,6 +29,7 @@ export const NotFoundPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
         <Button 
           id="btn-back"
+          data-testid="btn-back"
           variant="secondary" 
           onClick={() => navigate(-1)}
           className="flex items-center gap-2 w-full sm:w-auto"
@@ -38,6 +39,7 @@ export const NotFoundPage: React.FC = () => {
         </Button>
         <Button 
           id="btn-home"
+          data-testid="btn-home"
           variant="primary" 
           onClick={() => navigate('/')}
           className="flex items-center gap-2 w-full sm:w-auto"

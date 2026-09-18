@@ -45,3 +45,4 @@ jsons_tests/
 test-cases/utils/
 test-results/
 playwright-report/
+k6/reports/*.json

@@ -16,19 +16,17 @@ export class UserService {
   constructor(private userRepository: IUserRepository) {}
 
   async getMe(userId: string): Promise<UserResponse> {
-    const user = await this.userRepository.findById(userId);
+    const user = await this.userRepository.getUserWithRolesAndPermissions(userId);
     if (!user) {
       throw new NotFoundError('Usuário não encontrado');
     }
-
-    const { roles, permissions } = await this.userRepository.getUserRolesAndPermissions(userId);
 
     return {
       id: user.id,
       email: user.email,
       nome: user.nome,
-      roles,
-      permissions
+      roles: user.roles || [],
+      permissions: user.permissions || []
     };
   }
 
